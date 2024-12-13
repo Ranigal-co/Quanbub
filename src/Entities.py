@@ -89,3 +89,31 @@ class Defender(Entity):
 
     def spawn(self):
         self.set_coords(200, HEIGHT - 200)
+
+
+class Hero:
+    def __init__(self):
+        name = "Hero"
+        speed_move = 50
+        speed_attack = 200
+        hp = 50
+        attack = 25
+        cost = 50
+
+        self.name = name
+        self.data = (name, speed_move, speed_attack, hp, attack)
+        self.cost = cost
+
+
+class Shit:
+    def __init__(self):
+        name = "Shit"
+        speed_move = 25
+        speed_attack = 100
+        hp = 100
+        attack = 10
+        cost = 25
+
+        self.name = name
+        self.data = (name, speed_move, speed_attack, hp, attack)
+        self.cost = cost
