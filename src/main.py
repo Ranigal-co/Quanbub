@@ -48,7 +48,8 @@ while execute:
                 else:
                     pause = True
         elif type == MONEY_EVENT:
-            game.money += 1
+            if pause is False:
+                game.money += 1
     for index, button in enumerate(buttons):
         event = button.render(screen)
         if event == B_CLOSE:
