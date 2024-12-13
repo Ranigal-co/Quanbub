@@ -46,6 +46,7 @@ B_BUY_DEFENDER_2 = "BUY DEFENDER 2"
 '''
 FONT_GAME = pygame.font.Font("../fonts/bit.ttf", 50)
 FONT_PRESS_ESC = pygame.font.Font("../fonts/bit.ttf", 20)
+FONT_HP_ENTITIES = pygame.font.Font("../fonts/bit.ttf", 16)
 
 '''
     Текстовые константы

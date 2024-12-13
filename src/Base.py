@@ -18,6 +18,9 @@ class Base:
 
         self.rect = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
 
+    def get_hp(self):
+        return self.hp
+
 
 class EnemyBase(Base):
     def __init__(self):

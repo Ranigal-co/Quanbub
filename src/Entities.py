@@ -71,6 +71,11 @@ class Entity:
 
     def render(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
+        '''
+        Отображение hp юнитов
+        '''
+        hp_render = FONT_HP_ENTITIES.render(str(self.hp), True, pygame.Color("white"))
+        screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
 
 
 class Enemy(Entity):
