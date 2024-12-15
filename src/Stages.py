@@ -11,6 +11,7 @@ class Menu:
 class Game:
     def __init__(self):
         self.money = 0
+        self.limit_money = 100
         self.enemy_base = EnemyBase()
         self.defender_base = DefenderBase()
 

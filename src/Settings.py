@@ -14,11 +14,13 @@ pygame.init()
 WIDTH, HEIGHT = 1000, 600
 FPS = 60
 SPEED_MONEY = 200
-SPEED_SPAWN_ENEMY = 10000
+SPEED_SPAWN_ENEMY = 7500
+SPEED_SPAWN_BOSS = 60000
 COST_DEFENDER_1 = 20
 COST_DEFENDER_2 = 30
 
-STANDARD_BASE_HP = 10
+STANDARD_BASE_HP = 100
+STANDARD_BASE_HP_ENEMY = 500
 
 '''
     Константы для игры
@@ -32,6 +34,8 @@ DEATH = "Death"
 ENEMY_WIN = "Enemy win"
 DEFENDER_WIN = "Defender win"
 PLAY = "play"
+SINGLE = "Single"
+AREA = "Area"
 
 '''
     Функции кнопок
@@ -41,6 +45,7 @@ B_CLOSE = "CLOSE"
 B_START_GAME = "START GAME"
 B_BUY_DEFENDER_1 = "BUY DEFENDER 1"
 B_BUY_DEFENDER_2 = "BUY DEFENDER 2"
+B_LVL_UP = "Lvl up"
 
 '''
     Шрифты константы
