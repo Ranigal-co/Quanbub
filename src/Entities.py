@@ -58,6 +58,7 @@ class Entity:
         if collide > 0:
             if self.tick >= self.speed_attack:
                 self.tick = 0
+                return PLAY
             else:
                 self.tick += 1
         else:
@@ -74,8 +75,12 @@ class Entity:
         '''
         Отображение hp юнитов
         '''
-        hp_render = FONT_HP_ENTITIES.render(str(self.hp), True, pygame.Color("white"))
-        screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
+        if self.hp >= 0:
+            hp_render = FONT_HP_ENTITIES.render(str(self.hp), True, pygame.Color("white"))
+            screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
+        else:
+            hp_render = FONT_HP_ENTITIES.render('0', True, pygame.Color("white"))
+            screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
 
 
 class Enemy(Entity):
@@ -84,7 +89,7 @@ class Enemy(Entity):
                          speed_attack=speed_attack, hp=hp, attack=attack, type=ENEMY, color=(255, 0, 0), direction=-1)
 
     def spawn(self):
-        self.set_coords(WIDTH - 200, HEIGHT - 200)
+        self.set_coords(WIDTH - 150, HEIGHT - 200)
 
 
 class Defender(Entity):
@@ -93,7 +98,7 @@ class Defender(Entity):
                          speed_attack=speed_attack, hp=hp, attack=attack, type=DEFENDER, color=(0, 255, 0), direction=1)
 
     def spawn(self):
-        self.set_coords(200, HEIGHT - 200)
+        self.set_coords(100, HEIGHT - 200)
 
 
 class Hero:

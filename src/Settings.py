@@ -31,6 +31,7 @@ GAME = "Game"
 DEATH = "Death"
 ENEMY_WIN = "Enemy win"
 DEFENDER_WIN = "Defender win"
+PLAY = "play"
 
 '''
     Функции кнопок
