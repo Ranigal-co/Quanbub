@@ -129,7 +129,7 @@ class Boss:
         speed_move = 20
         speed_attack = 300
         hp = 200
-        attack = 30
+        attack = 40
         cost = 100
         damage_type = AREA
         # charge = 1000

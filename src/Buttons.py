@@ -60,3 +60,51 @@ class Button:
     def set_color(self, without, cursor):
         self.color_without_cursor = without
         self.color_cursor = cursor
+
+
+class Button_game(Button):
+    def __init__(self, x, y, width, height, text, recharge=TICK):
+        super().__init__(x, y, width, height, text)
+        self.recharge = recharge
+        self.const_rech = recharge
+        self.color_enable = (50, 50, 50)
+
+    def recharge_func(self, money, cost):
+        if self.recharge <= 0 and money >= cost:
+            self.activate = True
+            return self.activate
+        else:
+            self.activate = False
+            return self.activate
+
+    def recharge_func_tick(self):
+        if self.recharge <= 0:
+            return True
+        else:
+            return False
+
+    def render_b(self, screen):
+        if self.activate:
+            x, y = pygame.mouse.get_pos()
+            color = self.color_without_cursor
+            '''
+                Пересечение прямоугольника и курсора
+            '''
+            collide = self.button.collidepoint(x, y)
+            if collide and pygame.mouse.get_pressed()[0] is True:
+                return self.func
+            elif collide:
+                color = self.color_cursor
+            pygame.draw.rect(screen, color, self.button)
+            if self.text is not None:
+                screen.blit(self.text, (self.x, self.y))
+        else:
+            x, y = pygame.mouse.get_pos()
+            color = self.color_enable
+            collide = self.button.collidepoint(x, y)
+            pygame.draw.rect(screen, color, self.button)
+            if self.text is not None:
+                screen.blit(self.text, (self.x, self.y))
+
+    def color_enable_f(self, color):
+        self.color_enable = color

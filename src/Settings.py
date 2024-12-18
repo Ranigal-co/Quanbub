@@ -22,6 +22,7 @@ COST_DEFENDER_2 = 30
 STANDARD_BASE_HP = 100
 STANDARD_BASE_HP_ENEMY = 500
 
+TICK = 1000
 '''
     Константы для игры
 '''
