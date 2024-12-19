@@ -47,7 +47,7 @@ class Button:
             return self.func
         elif collide:
             color = self.color_cursor
-        pygame.draw.rect(screen, color, self.button)
+        pygame.draw.rect(screen, color, self.button, border_radius=10)
         if self.text is not None:
             screen.blit(self.text, (self.x, self.y))
 
@@ -95,14 +95,14 @@ class Button_game(Button):
                 return self.func
             elif collide:
                 color = self.color_cursor
-            pygame.draw.rect(screen, color, self.button)
+            pygame.draw.rect(screen, color, self.button, border_radius=10)
             if self.text is not None:
                 screen.blit(self.text, (self.x, self.y))
         else:
             x, y = pygame.mouse.get_pos()
             color = self.color_enable
             collide = self.button.collidepoint(x, y)
-            pygame.draw.rect(screen, color, self.button)
+            pygame.draw.rect(screen, color, self.button, border_radius=10)
             if self.text is not None:
                 screen.blit(self.text, (self.x, self.y))
 

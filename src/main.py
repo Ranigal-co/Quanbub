@@ -134,6 +134,7 @@ while execute:
             pygame.mixer_music.load('../music/music_game/battle_6.mp3')
             pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
             pygame.mixer_music.set_volume(0.6)
+
     for index, button in enumerate(buttons_game):
         if button.func == B_BUY_DEFENDER_1:
             button.recharge_func(game.money, fighter1.cost)
