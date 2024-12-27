@@ -3,6 +3,7 @@ from Entities import Enemy, Defender, Hero, Shit
 from Stages import Menu, Game
 from Buttons import Button, Button_game
 from src.Entities import Monster, Boss
+from Volume_editor import Rail, Slider
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
 
@@ -23,6 +24,10 @@ USE_FIGHTER = Hero(), Shit()
 fighter1, fighter2 = USE_FIGHTER
 USE_ENEMY = Monster(), Boss()
 enemy1, enemy2 = USE_ENEMY
+
+Rail = Rail(650, 13, 150, 4)
+
+slider = Slider(725, 15, 5)
 
 entities = list()
 
@@ -169,6 +174,11 @@ while execute:
                 buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                 buttons_game[-1].func = B_LVL_UP
     if stage == GAME:
+        Rail.Render_rail(screen)
+        slider.Render_slider(screen)
+        pygame.mixer_music.set_volume(slider.Volume_digit())  # меняю звук за тот который указан в ползунке
+        sound_game['buy'].set_volume(slider.Volume_digit())
+        sound_game['hit_defender'].set_volume(slider.Volume_digit())
         game.render(screen)
         screen.blit(money_render, (0, 0))
         for index, entity in enumerate(entities):
