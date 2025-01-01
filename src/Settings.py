@@ -15,7 +15,7 @@ WIDTH, HEIGHT = 1000, 600
 FPS = 60
 SPEED_MONEY = 200
 SPEED_SPAWN_ENEMY = 7500
-SPEED_SPAWN_BOSS = 60000
+SPEED_SPAWN_BOSS = 45000
 COST_DEFENDER_1 = 20
 COST_DEFENDER_2 = 30
 
@@ -61,3 +61,7 @@ FONT_HP_ENTITIES = pygame.font.Font("../fonts/bit.ttf", 16)
 TEXT_PAUSE = FONT_GAME.render("PAUSE", True, (255, 255, 255))
 TEXT_PRESS_ESC = FONT_PRESS_ESC.render("Press esc", True, (255, 255, 255))
 TEXT_START_GAME = FONT_PRESS_ESC.render("Start game", True, (255, 255, 255))
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
+
+n_im = pygame.image.load("../sprites/spr_environment/none_spr.png").convert_alpha()
