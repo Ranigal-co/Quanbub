@@ -16,9 +16,11 @@ from random import *
 '''
     Интерфейс для Enemy и Defender
 '''
+
+
 class Entity:
     def __init__(self, name=NONE, speed_move=10, speed_attack=500,
-                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE):
+                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE, image=n_im):
         self.name = name
 
         self.speed_move = speed_move
@@ -36,14 +38,11 @@ class Entity:
 
         self.WIDTH, self.HEIGHT = 50, 50
         self.rect = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+        self.image = image
 
     def set_coords(self, x, y):
         self.x, self.y = x, y
         self.rect = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
-
-    '''
-        где-то здесь логика, что один чел один удар по кому либо наносит, а не массивный урон
-    '''
 
     def move_attack(self, entities, bases):
         collide = 0
@@ -82,22 +81,31 @@ class Entity:
             return DEATH
 
     def render(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
-        '''
-        Отображение hp юнитов
-        '''
+        # pygame.draw.rect(screen, self.color, self.rect)
+        if self.type == ENEMY:
+            if self.name == "Boss":
+                screen.blit(self.image, (self.x - 100, self.y - self.image.get_height() + 50 + 50))
+                return
+            if self.name == "Monster":
+                screen.blit(self.image, (self.x - 25, self.y - self.image.get_height() + 50 + 15))
+                return
+            screen.blit(self.image, (self.x, self.y - self.image.get_height() + 50))
+        elif self.type == DEFENDER:
+            screen.blit(self.image, (self.x - self.image.get_width() + 50, self.y - self.image.get_height() + 50 + 25))
+
+    def render_font(self, screen):
         if self.hp >= 0:
             hp_render = FONT_HP_ENTITIES.render(str(self.hp), True, pygame.Color("white"))
-            screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
+            screen.blit(hp_render, (self.x, self.y - 50 - hp_render.get_height()))
         else:
             hp_render = FONT_HP_ENTITIES.render('0', True, pygame.Color("white"))
-            screen.blit(hp_render, (self.x, self.y - hp_render.get_height()))
+            screen.blit(hp_render, (self.x, self.y - 50 - hp_render.get_height()))
 
 
 class Enemy(Entity):
-    def __init__(self, name, speed_move, speed_attack, hp, attack, cost, damage_type):
+    def __init__(self, name, speed_move, speed_attack, hp, attack, cost, damage_type, image):
         super().__init__(name=name, speed_move=speed_move,
-                         speed_attack=speed_attack, hp=hp, attack=attack, type=ENEMY, color=(255, 0, 0), direction=-1, damage_type=damage_type)
+                         speed_attack=speed_attack, hp=hp, attack=attack, type=ENEMY, color=(255, 0, 0), direction=-1, damage_type=damage_type, image=image)
         self.cost = cost
 
     def spawn(self):
@@ -112,14 +120,14 @@ class Monster:
         name = 'Monster'
         speed_move = 50
         speed_attack = 200
-        hp = 50
-        attack = 25
+        hp = 80
+        attack = 30
         cost = 10
         damage_type = SINGLE
-        # charge = 1000 крч надо сделать чтобы не всегда можно было купить, а нужно подождать пока воин перезарядится, тогда снова заспавнить можно
+        image = pygame.image.load("../sprites/sprite_enemy/monster.png").convert_alpha()
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type)
+        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image)
         self.cost = cost
 
 
@@ -128,14 +136,14 @@ class Boss:
         name = 'Boss'
         speed_move = 20
         speed_attack = 300
-        hp = 200
-        attack = 40
+        hp = 250
+        attack = 60
         cost = 100
         damage_type = AREA
-        # charge = 1000
+        image = pygame.image.load("../sprites/sprite_enemy/boss.png").convert_alpha()
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type)
+        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image)
         self.cost = cost
 
 
@@ -153,8 +161,8 @@ class Hero:
         name = "Hero"
         speed_move = 50
         speed_attack = 200
-        hp = 50
-        attack = 25
+        hp = 52
+        attack = 36
         cost = 50
         damage_type = AREA
         # charge = 5000

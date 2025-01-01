@@ -1,3 +1,5 @@
+import pygame.image
+
 from Settings import *
 from Entities import Enemy, Defender, Hero, Shit
 from Stages import Menu, Game
@@ -5,7 +7,6 @@ from Buttons import Button, Button_game
 from src.Entities import Monster, Boss
 from Volume_editor import Rail, Slider
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
 
 '''
     Теперь есть два вида кнопок: 
@@ -44,6 +45,8 @@ sound_game = {'buy':pygame.mixer.Sound('../music/sounds_game/buy.mp3'),
 pos_music_game = 0
 pos_music_pause = 0
 
+bg = pygame.image.load("../sprites/backgrounds/background.png")
+
 money_text = f'Баланс: 0'
 
 MONEY_EVENT = pygame.USEREVENT + 1
@@ -67,6 +70,7 @@ clock = pygame.time.Clock()
 execute = True
 while execute:
     screen.fill((0, 0, 0))
+    screen.blit(bg, (0, 0))
     money_render = FONT_GAME.render(money_text, True, pygame.Color("yellow"))
     for event in pygame.event.get():
         type = event.type
@@ -195,6 +199,7 @@ while execute:
                     game.money += entities[index].cost
                 del entities[index]
             entity.render(screen)
+            entity.render_font(screen)
         money_text = f'Money: {game.money}/{game.limit_money}'
     elif stage == MENU:
         pygame.time.set_timer(ENEMY_SPAWN_Monster, 0)
@@ -202,6 +207,7 @@ while execute:
         pygame.time.set_timer(MONEY_EVENT, 0)
         pygame.time.set_timer(TICK_EVENT, 0)
         buttons = list()
+        buttons_game = list()
         buttons.append(Button(WIDTH - 40, 0, 40, 40))
         buttons[-1].func = B_CLOSE
         buttons.append(Button(425, 280, 150, 40, "Start game"))
@@ -210,7 +216,7 @@ while execute:
 
         entities = list()
     if pause is True:
-        pygame.draw.rect(screen, (0, 0, 0), (100, 100, 370, 250))
+        # pygame.draw.rect(screen, (0, 0, 0), (100, 100, 370, 250))
         screen.blit(TEXT_PAUSE, (200, 200))
         screen.blit(TEXT_PRESS_ESC, (220, 255))
 
