@@ -24,8 +24,9 @@ class Base:
 
 class EnemyBase(Base):
     def __init__(self):
-        super().__init__(WIDTH - 100, HEIGHT - 300, 100, 200)
+        super().__init__(WIDTH - 50, HEIGHT - 200, 50, 50)
         self.hp = STANDARD_BASE_HP_ENEMY
+        self.type = ENEMY
 
     def attack_me(self, attack):
         if self.hp > 0:
@@ -37,9 +38,10 @@ class EnemyBase(Base):
 
 class DefenderBase(Base):
     def __init__(self, cost_lvl=50, lvl=1):
-        super().__init__(0, HEIGHT - 300, 100, 200)
+        super().__init__(0, HEIGHT - 200, 50, 50)
         self.cost_lvl = cost_lvl
         self.lvl = lvl
+        self.type = DEFENDER
 
     def lvl_up(self):
         self.lvl += 1

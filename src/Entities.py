@@ -2,7 +2,7 @@ import random
 import pygame
 from Settings import *
 from random import *
-
+from src.Base import DefenderBase, EnemyBase
 
 '''
 
@@ -20,7 +20,7 @@ from random import *
 
 class Entity:
     def __init__(self, name=NONE, speed_move=10, speed_attack=500,
-                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE, image=n_im):
+                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE, image=n_im, range=50):
         self.name = name
 
         self.speed_move = speed_move
@@ -39,6 +39,7 @@ class Entity:
         self.WIDTH, self.HEIGHT = 50, 50
         self.rect = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
         self.image = image
+        self.range = range
 
     def set_coords(self, x, y):
         self.x, self.y = x, y
@@ -46,25 +47,35 @@ class Entity:
 
     def move_attack(self, entities, bases):
         collide = 0
-        if self.rect.collidelist(bases) > -1:
-            for base in bases:
-                if self.rect.colliderect(base.rect):
+        for base in bases:
+            if (self.type == ENEMY and (base == bases[1])):
+                distance = ((self.x - base.rect.x) ** 2 + (self.y - base.rect.y) ** 2) ** 0.5
+                if distance <= self.range:
                     collide += 1
                     if self.tick >= self.speed_attack:
                         win = base.attack_me(self.attack)
                         if 'win' in win:
                             return win
-        else:
-            for entity in entities:
-                if entity.type != self.type:
-                    if self.rect.colliderect(entity.rect):
-                        collide += 1
-                        if self.tick >= self.speed_attack:
-                            if self.damage_type == SINGLE:
-                                entity.hp -= self.attack
-                                break
-                            else:
-                                entity.hp -= self.attack
+            elif (self.type == DEFENDER and (base == bases[0])):
+                distance = ((self.x - base.rect.x) ** 2 + (self.y - base.rect.y) ** 2) ** 0.5
+                if distance <= self.range:
+                    collide += 1
+                    if self.tick >= self.speed_attack:
+                        win = base.attack_me(self.attack)
+                        if 'win' in win:
+                            return win
+        # Проверяем, находится ли враг в пределах дальности атаки
+        for entity in entities:
+            if entity.type != self.type:
+                distance = ((self.x - entity.x) ** 2 + (self.y - entity.y) ** 2) ** 0.5
+                if distance <= self.range:
+                    collide += 1
+                    if self.tick >= self.speed_attack:
+                        if self.damage_type == SINGLE:
+                            entity.hp -= self.attack
+                            break
+                        else:
+                            entity.hp -= self.attack
         if collide > 0:
             if self.tick >= self.speed_attack:
                 self.tick = 0
@@ -72,6 +83,7 @@ class Entity:
             else:
                 self.tick += 1
         else:
+            # Если существо не атакует, оно продолжает двигаться
             self.x += self.speed_move / FPS * self.direction
             self.rect = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
         return NONE
@@ -103,31 +115,35 @@ class Entity:
 
 
 class Enemy(Entity):
-    def __init__(self, name, speed_move, speed_attack, hp, attack, cost, damage_type, image):
+    def __init__(self, name, speed_move, speed_attack, hp, attack, cost, damage_type, image, range):
         super().__init__(name=name, speed_move=speed_move,
-                         speed_attack=speed_attack, hp=hp, attack=attack, type=ENEMY, color=(255, 0, 0), direction=-1, damage_type=damage_type, image=image)
+                         speed_attack=speed_attack, hp=hp, attack=attack, type=ENEMY, color=(255, 0, 0), direction=-1, damage_type=damage_type, image=image, range=range)
         self.cost = cost
 
     def spawn(self):
-        self.set_coords(WIDTH - 150, HEIGHT - 200 + randint(-15, 15))
+        self.set_coords(WIDTH - 100, HEIGHT - 200 + randint(-15, 15))
 '''
 здесь cost - это сколько выпадает с врага монет
 крч хз баг это или оставим, типо если денег и так 100/100, но с врага выпадает, то типо там 110/100 получается бабла
 можно оставить можно нет
+'''
+'''
+range - дальность атаки
 '''
 class Monster:
     def __init__(self):
         name = 'Monster'
         speed_move = 50
         speed_attack = 200
-        hp = 80
+        hp = 50
         attack = 30
         cost = 10
         damage_type = SINGLE
         image = pygame.image.load("../sprites/sprite_enemy/monster.png").convert_alpha()
+        range = 60
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image)
+        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image, range)
         self.cost = cost
 
 
@@ -137,23 +153,24 @@ class Boss:
         speed_move = 20
         speed_attack = 300
         hp = 250
-        attack = 60
+        attack = 50
         cost = 100
         damage_type = AREA
         image = pygame.image.load("../sprites/sprite_enemy/boss.png").convert_alpha()
+        range = 120
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image)
+        self.data = (name, speed_move, speed_attack, hp, attack, cost, damage_type, image, range)
         self.cost = cost
 
 
 class Defender(Entity):
-    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type):
+    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range):
         super().__init__(name=name, speed_move=speed_move,
-                         speed_attack=speed_attack, hp=hp, attack=attack, type=DEFENDER, color=(0, 255, 0), direction=1, damage_type=damage_type)
+                         speed_attack=speed_attack, hp=hp, attack=attack, type=DEFENDER, color=(0, 255, 0), direction=1, damage_type=damage_type, range=range)
 
     def spawn(self):
-        self.set_coords(100, HEIGHT - 200 + randint(-15, 15))
+        self.set_coords(50, HEIGHT - 200 + randint(-15, 15))
 
 
 class Hero:
@@ -162,13 +179,13 @@ class Hero:
         speed_move = 50
         speed_attack = 200
         hp = 52
-        attack = 36
+        attack = 48
         cost = 50
         damage_type = AREA
-        # charge = 5000
+        range = 80
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, damage_type)
+        self.data = (name, speed_move, speed_attack, hp, attack, damage_type, range)
         self.cost = cost
 
 
@@ -178,10 +195,11 @@ class Shit:
         speed_move = 25
         speed_attack = 100
         hp = 100
-        attack = 10
+        attack = 20
         cost = 25
         damage_type = SINGLE
+        range = 40
 
         self.name = name
-        self.data = (name, speed_move, speed_attack, hp, attack, damage_type)
+        self.data = (name, speed_move, speed_attack, hp, attack, damage_type, range)
         self.cost = cost

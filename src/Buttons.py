@@ -30,8 +30,8 @@ class Button:
         '''
         self.func = B_NONE
 
-        self.color_cursor = (100, 0, 0)
-        self.color_without_cursor = (200, 0, 0)
+        self.color_cursor = (0, 100, 0)
+        self.color_without_cursor = (0, 200, 0)
 
     '''
         Делаем отрисовку объекта класса
@@ -47,7 +47,7 @@ class Button:
             return self.func
         elif collide:
             color = self.color_cursor
-        pygame.draw.rect(screen, color, self.button)
+        pygame.draw.rect(screen, color, self.button, border_radius=10)
         if self.text is not None:
             screen.blit(self.text, (self.x, self.y))
 
@@ -83,28 +83,41 @@ class Button_game(Button):
         else:
             return False
 
-    def render_b(self, screen):
-        if self.activate:
-            x, y = pygame.mouse.get_pos()
-            color = self.color_without_cursor
-            '''
-                Пересечение прямоугольника и курсора
-            '''
-            collide = self.button.collidepoint(x, y)
-            if collide and pygame.mouse.get_pressed()[0] is True:
-                return self.func
-            elif collide:
-                color = self.color_cursor
-            pygame.draw.rect(screen, color, self.button)
-            if self.text is not None:
-                screen.blit(self.text, (self.x, self.y))
+    def render_b(self, screen, pause):
+        if pause is False:
+            if self.activate:
+                x, y = pygame.mouse.get_pos()
+                color = self.color_without_cursor
+                '''
+                    Пересечение прямоугольника и курсора
+                '''
+                collide = self.button.collidepoint(x, y)
+                if collide and pygame.mouse.get_pressed()[0] is True:
+                    return self.func
+                elif collide:
+                    color = self.color_cursor
+                pygame.draw.rect(screen, color, self.button, border_radius=10)
+                if self.text is not None:
+                    screen.blit(self.text, (self.x, self.y))
+            else:
+                color = self.color_enable
+                pygame.draw.rect(screen, color, self.button, border_radius=10)
+                if self.text is not None:
+                    screen.blit(self.text, (self.x, self.y))
         else:
-            x, y = pygame.mouse.get_pos()
-            color = self.color_enable
-            collide = self.button.collidepoint(x, y)
-            pygame.draw.rect(screen, color, self.button)
-            if self.text is not None:
-                screen.blit(self.text, (self.x, self.y))
+            if self.activate:
+                color = self.color_without_cursor
+                '''
+                    Пересечение прямоугольника и курсора
+                '''
+                pygame.draw.rect(screen, color, self.button, border_radius=10)
+                if self.text is not None:
+                    screen.blit(self.text, (self.x, self.y))
+            else:
+                color = self.color_enable
+                pygame.draw.rect(screen, color, self.button, border_radius=10)
+                if self.text is not None:
+                    screen.blit(self.text, (self.x, self.y))
 
     def color_enable_f(self, color):
         self.color_enable = color
