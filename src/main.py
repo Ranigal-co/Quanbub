@@ -298,7 +298,8 @@ while execute:
                 if 'win' in game_over:
                     if game_over == DEFENDER_WIN:
                         # Начисляем награду за прохождение уровня
-                        coin.coins += levels[selected_level.level_id].coins
+                        print(selected_level.level_id, len(levels))
+                        coin.coins += levels[selected_level.level_id - 1].coins
                         # Открываем следующий уровень
                         if selected_level.level_id < len(levels):
                             levels[selected_level.level_id].is_unlocked = True
