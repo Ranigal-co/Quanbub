@@ -16,6 +16,11 @@ class Database:
                      (level_id INTEGER PRIMARY KEY, is_unlocked INTEGER, coins INTEGER)''')
         c.execute('''CREATE TABLE IF NOT EXISTS deck
                      (slot INTEGER PRIMARY KEY, character_name TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS character_upgrades
+                     (character_name TEXT PRIMARY KEY, level INTEGER, upgrade_cost INTEGER)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS base_upgrades
+                     (base_level INTEGER PRIMARY KEY, hp INTEGER, upgrade_cost INTEGER, limit_money INTEGER, speed_money INTEGER,
+                     hp_upgrade_cost INTEGER, limit_money_upgrade_cost INTEGER, speed_money_upgrade_cost INTEGER)''')
         conn.commit()
         conn.close()
 
@@ -68,3 +73,60 @@ class Database:
                     break
         conn.close()
         return deck
+
+    def save_character_upgrades(self, characters):
+        """Сохранение данных о прокачке персонажей."""
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        for character in characters:
+            c.execute(
+                "INSERT OR REPLACE INTO character_upgrades (character_name, level, upgrade_cost) VALUES (?, ?, ?)",
+                (character.name, character.level, character.upgrade_cost))
+        conn.commit()
+        conn.close()
+
+    def save_base_upgrades(self, defender_base):
+        """Сохранение данных о прокачке базы."""
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute(
+            "INSERT OR REPLACE INTO base_upgrades (base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (defender_base.lvl_main, defender_base.hp, defender_base.upgrade_cost, defender_base.limit_money,
+             defender_base.speed_money,
+             defender_base.hp_upgrade_cost, defender_base.limit_money_upgrade_cost,
+             defender_base.speed_money_upgrade_cost))
+        conn.commit()
+        conn.close()
+
+    def load_character_upgrades(self, characters):
+        """Загрузка данных о прокачке персонажей."""
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT * FROM character_upgrades")
+        rows = c.fetchall()
+        for row in rows:
+            character_name, level, upgrade_cost = row
+            for character in characters:
+                if character.name == character_name:
+                    for i in range(level - 1):
+                        character.upgrade()
+                    break
+        conn.close()
+
+    def load_base_upgrades(self, defender_base):
+        """Загрузка данных о прокачке базы."""
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT * FROM base_upgrades")
+        row = c.fetchone()
+        if row:
+            base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost = row
+            defender_base.lvl_main = base_level
+            defender_base.hp = hp
+            defender_base.upgrade_cost = upgrade_cost
+            defender_base.limit_money = limit_money
+            defender_base.speed_money = speed_money
+            defender_base.hp_upgrade_cost = hp_upgrade_cost  # Загружаем стоимость улучшения здоровья
+            defender_base.limit_money_upgrade_cost = limit_money_upgrade_cost  # Загружаем стоимость улучшения лимита денег
+            defender_base.speed_money_upgrade_cost = speed_money_upgrade_cost  # Загружаем стоимость улучшения скорости накопления денег
+        conn.close()

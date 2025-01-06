@@ -1,7 +1,5 @@
 import random
 
-import pygame.image
-
 from Settings import *
 from Entities import Enemy, Defender, Hero, Shit
 from Stages import Menu, Game
@@ -13,8 +11,9 @@ from LevelMenu import LevelMenu
 from Database import Database
 from Coins import Coins
 from HeroesMenu import HeroesMenu
-from Deck import Deck
 from Characters import Character
+from EnhanceMenu import EnhanceMenu
+from Base import DefenderBase
 
 
 buttons = list()
@@ -34,9 +33,10 @@ slider = Slider(725, 15, 5)
 entities = list()
 
 game = None
+base_def_game = Game()
 menu = Menu()
 stage = MENU
-bases = list()
+bases = [base_def_game.defender_base]
 LVL = 1
 
 pygame.mixer_music.load('../music/music_game/battle_3.mp3')
@@ -82,13 +82,19 @@ characters = [
     Character("Shit", 25, 100, 100, 20, SINGLE, 40, 25, 2)
 ]
 
-
-
 deck = db.load_deck(characters)
 heroes_menu = HeroesMenu(characters, deck, db)
 
 coin = Coins(0)
 db.load_progress(levels, coin)
+bases[0].coin = coin
+
+# Загружаем данные о прокачке персонажей и базы
+db.load_character_upgrades(characters)
+db.load_base_upgrades(bases[0])  # bases[0] - это defender_base
+
+enhance_menu = EnhanceMenu(characters, bases[0], coin, db, levels)
+enhance_menu.update_buttons()  # Обновляем кнопки после загрузки данных
 
 level_menu = LevelMenu(levels)
 
@@ -135,8 +141,11 @@ while execute:
                     pygame.mixer_music.set_volume(1)
                     pause = True
         elif type == MONEY_EVENT:
-            if pause is False and game.money < game.limit_money:
-                game.money += 1
+            if pause is False:
+                if game.money + bases[0].speed_money <= game.limit_money:
+                    game.money += bases[0].speed_money  # Увеличиваем деньги на скорость накопления
+                elif game.money + bases[0].speed_money >= game.limit_money:
+                    game.money = game.limit_money
         elif type == ENEMY_SPAWN_Monster:
             if pause is False:
                 entities.append(Enemy(*enemy1.data))
@@ -161,26 +170,27 @@ while execute:
         elif event == MENU_PAUSE:
             stage = MENU
             pause = False
+        elif event == B_ENHANCE:
+            stage = ENHANCE_MENU  # Переходим в меню улучшений
 
     for index, button in enumerate(buttons_game):
         for char in characters_game:
             if button.func == char.name:
                 button.recharge_func(game.money, char.cost)
         if button.func == B_LVL_UP:
-            button.recharge_func(game.money, bases[1].cost_lvl)
+            button.recharge_func(game.money, bases[0].cost_lvl)
         event = button.render_b(screen, pause)
         if pause is False:
             if event == B_LVL_UP:
-                game.money -= bases[1].cost_lvl
+                game.money -= bases[0].cost_lvl  # Теперь bases[0] ссылается на defender_base
                 buttons_game[-1].func = B_LVL_UP
-                buttons_game[-1].text = f"Lvl: {bases[1].lvl} up: {bases[1].cost_lvl}"
-                bases[1].lvl_up()
-                LVL = bases[1].lvl
-                game.limit_money = 100 * LVL
+                bases[0].lvl_up()
+                LVL = bases[0].lvl
+                game.limit_money = bases[0].limit_money * LVL
                 sound_game['buy'].play()
                 buttons_game[index].recharge = buttons_game[index].const_rech
                 del buttons_game[index]
-                buttons_game.append(Button_game(50, HEIGHT - 80, 175, 40, f"Lvl: {bases[1].lvl} up: {bases[1].cost_lvl}", 5))
+                buttons_game.append(Button_game(50, HEIGHT - 80, 175, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
                 buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                 buttons_game[-1].func = B_LVL_UP
             for char in characters_game:
@@ -238,7 +248,13 @@ while execute:
                     stage = GAME
                     game = Game()
                     game.money = selected_level.initial_money
-                    bases = [game.enemy_base, game.defender_base]
+                    if len(bases) > 1:
+                        del bases[-1]
+                    bases[0].hp = bases[0].hp_select
+                    bases[0].lvl = 1
+                    bases[0].cost_lvl = 50
+                    game.limit_money = bases[0].limit_money
+                    bases.append(game.enemy_base)  # Теперь defender_base идет первым, а enemy_base вторым
 
                     buttons_game.clear()
                     # Создание кнопок для персонажей из колоды
@@ -252,7 +268,7 @@ while execute:
                             buttons_game.append(button)
 
                     buttons_game.append(
-                        Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[1].lvl} up: {bases[1].cost_lvl}", 2))
+                        Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
                     buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                     buttons_game[-1].func = B_LVL_UP
 
@@ -280,11 +296,27 @@ while execute:
             if delete_event == "DELETE_CHARACTER":
                 heroes_menu.handle_event("DELETE_CHARACTER")
 
+    elif stage == ENHANCE_MENU:
+        # Создаем EnhanceMenu только при переходе в меню улучшений
+        enhance_menu = EnhanceMenu(characters, bases[0], coin, db, levels)
+        for j in range(len(buttons) - 1, 0, -1):
+            del buttons[j]
+        coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
+        screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
+        buttons.append(Button(WIDTH - 160, 0, 100, 40, "Back"))
+        buttons[-1].func = MENU
+        enhance_menu.render(screen)
+        for button in enhance_menu.buttons:
+            event = button.render(screen)
+            if event:
+                enhance_menu.handle_event(event)
+
     elif stage == GAME:
         pygame.mixer_music.set_volume(slider.Volume_digit())
         sound_game['buy'].set_volume(slider.Volume_digit())
         sound_game['hit_defender'].set_volume(slider.Volume_digit())
         game.render(screen)
+        base_def_game.render_def_base(screen)
         screen.blit(money_render, (0, 0))
         buttons.clear()
 
@@ -298,7 +330,6 @@ while execute:
                 if 'win' in game_over:
                     if game_over == DEFENDER_WIN:
                         # Начисляем награду за прохождение уровня
-                        print(selected_level.level_id, len(levels))
                         coin.coins += levels[selected_level.level_id - 1].coins
                         # Открываем следующий уровень
                         if selected_level.level_id < len(levels):
