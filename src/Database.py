@@ -123,6 +123,7 @@ class Database:
             base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost = row
             defender_base.lvl_main = base_level
             defender_base.hp = hp
+            defender_base.hp_select = hp
             defender_base.upgrade_cost = upgrade_cost
             defender_base.limit_money = limit_money
             defender_base.speed_money = speed_money
