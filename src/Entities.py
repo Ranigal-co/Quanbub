@@ -48,7 +48,7 @@ class Entity:
     def move_attack(self, entities, bases):
         collide = 0
         for base in bases:
-            if (self.type == ENEMY and (base == bases[1])):
+            if (self.type == ENEMY and (base == bases[0])):
                 distance = ((self.x - base.rect.x) ** 2 + (self.y - base.rect.y) ** 2) ** 0.5
                 if distance <= self.range:
                     collide += 1
@@ -56,7 +56,7 @@ class Entity:
                         win = base.attack_me(self.attack)
                         if 'win' in win:
                             return win
-            elif (self.type == DEFENDER and (base == bases[0])):
+            elif (self.type == DEFENDER and (base == bases[1])):
                 distance = ((self.x - base.rect.x) ** 2 + (self.y - base.rect.y) ** 2) ** 0.5
                 if distance <= self.range:
                     collide += 1
@@ -122,14 +122,8 @@ class Enemy(Entity):
 
     def spawn(self):
         self.set_coords(WIDTH - 100, HEIGHT - 200 + randint(-15, 15))
-'''
-здесь cost - это сколько выпадает с врага монет
-крч хз баг это или оставим, типо если денег и так 100/100, но с врага выпадает, то типо там 110/100 получается бабла
-можно оставить можно нет
-'''
-'''
-range - дальность атаки
-'''
+
+
 class Monster:
     def __init__(self):
         name = 'Monster'
