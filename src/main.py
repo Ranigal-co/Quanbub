@@ -64,7 +64,7 @@ pygame.time.set_timer(ENEMY_SPAWN_Boss, 0)
 '''
 
 TICK_EVENT = pygame.USEREVENT + 4
-pygame.time.set_timer(TICK_EVENT, 0) # 1 секунда в Settings прописано
+pygame.time.set_timer(TICK_EVENT, 0) # 0.1 секунда в Settings прописано
 
 pause = False
 clock = pygame.time.Clock()
@@ -73,13 +73,13 @@ execute = True
 db = Database()
 levels = [
     Level(1, 7500, 60000, 200, 0, 100 + random.randint(0, 100)),
-    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150)),
-    Level(3, 3000, 30000, 200, 0, 100 + random.randint(50, 200))
+    Level(2, 2500, 20000, 200, 0, 100 + random.randint(25, 150)),
+    Level(3, 1000, 10000, 200, 0, 100 + random.randint(50, 200))
 ]
 
 characters = [
-    Character("Hero", 50, 200, 52, 36, AREA, 80, 50, 5),
-    Character("Shit", 25, 100, 100, 20, SINGLE, 40, 25, 2)
+    Character("Hero", 50, 200, 52, 36, AREA, 80, 50, 50),
+    Character("Shit", 25, 100, 100, 20, SINGLE, 40, 25, 20)
 ]
 
 deck = db.load_deck(characters)
