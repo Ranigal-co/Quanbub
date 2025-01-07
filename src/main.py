@@ -1,9 +1,8 @@
 import random
 
-from Settings import *
 from Entities import Enemy, Defender, Hero, Shit
 from Stages import Menu, Game
-from Buttons import Button, Button_game
+from Buttons import Button_game
 from src.Entities import Monster, Boss
 from Volume_editor import Rail, Slider
 from Levels import Level
@@ -13,13 +12,10 @@ from Coins import Coins
 from HeroesMenu import HeroesMenu
 from Characters import Character
 from EnhanceMenu import EnhanceMenu
-from Base import DefenderBase
+from ButtonManager import *
 
 
-buttons = list()
 buttons_game = list()
-buttons.append(Button(WIDTH - 40, 0, 40, 40))
-buttons[-1].func = B_CLOSE
 
 USE_FIGHTER = Hero(), Shit()
 fighter1, fighter2 = USE_FIGHTER
@@ -73,8 +69,8 @@ execute = True
 db = Database()
 levels = [
     Level(1, 7500, 60000, 200, 0, 100 + random.randint(0, 100)),
-    Level(2, 2500, 20000, 200, 0, 100 + random.randint(25, 150)),
-    Level(3, 1000, 10000, 200, 0, 100 + random.randint(50, 200))
+    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150)),
+    Level(3, 2000, 20000, 200, 0, 100 + random.randint(50, 200))
 ]
 
 characters = [
@@ -100,6 +96,15 @@ level_menu = LevelMenu(levels)
 
 selected_level = levels[0]
 
+# Создаем экземпляры ButtonManager для каждого меню
+menu_button_manager = ButtonManager()
+level_button_manager = ButtonManager()
+heroes_button_manager = ButtonManager(heroes_menu)
+enhance_button_manager = ButtonManager(heroes_menu, enhance_menu)
+pause_button_manager = ButtonManager()
+
+coin.coins = 1000
+
 while execute:
     screen.fill((0, 0, 0))
     if stage == GAME:
@@ -112,16 +117,15 @@ while execute:
         elif type == pygame.MOUSEBUTTONDOWN:
             # Проверяем, было ли нажатие вне кнопок
             clicked_outside = True
-            for button in heroes_menu.buttons:
+            for button in heroes_button_manager.buttons:
                 if button.button.collidepoint(event.pos):
                     clicked_outside = False
                     break
-            if heroes_menu.delete_button:
-                if heroes_menu.delete_button.button.collidepoint(event.pos):
-                    clicked_outside = False
-                    break
             if clicked_outside:
-                heroes_menu.handle_event("CLICK_OUTSIDE")  # Сбрасываем выбор
+                # Сбрасываем выбор, если игрок нажал вне кнопок
+                heroes_menu.selected_character = None
+                heroes_menu.selected_slot = None
+                heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
         elif type == pygame.KEYDOWN and stage == GAME:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE] == 1:
@@ -133,6 +137,7 @@ while execute:
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=500)
                     pygame.mixer_music.set_volume(0.6)
                     pause = False
+                    pause_button_manager.buttons.clear()  # Очищаем кнопки паузы
                 else:
                     pos_music_game = pygame.mixer_music.get_pos() / 1000
                     pygame.mixer_music.fadeout(500)
@@ -140,6 +145,7 @@ while execute:
                     pygame.mixer_music.play(loops=-1, start=pos_music_pause, fade_ms=500)
                     pygame.mixer_music.set_volume(1)
                     pause = True
+                    pause_button_manager.create_pause_buttons()  # Создаем кнопки паузы
         elif type == MONEY_EVENT:
             if pause is False:
                 if game.money + bases[0].speed_money <= game.limit_money:
@@ -159,7 +165,7 @@ while execute:
                 for button in buttons_game:
                     if button.recharge_func_tick() is False:
                         button.recharge -= 1
-    for index, button in enumerate(buttons):
+    for index, button in enumerate(menu_button_manager.buttons):
         event = button.render(screen)
         if event == B_CLOSE:
             execute = False
@@ -171,7 +177,9 @@ while execute:
             stage = MENU
             pause = False
         elif event == B_ENHANCE:
-            stage = ENHANCE_MENU  # Переходим в меню улучшений
+            stage = ENHANCE_MENU
+        elif event == B_LEVELS:
+            stage = LEVEL_MENU
 
     for index, button in enumerate(buttons_game):
         for char in characters_game:
@@ -206,40 +214,28 @@ while execute:
         pygame.time.set_timer(ENEMY_SPAWN_Boss, 0)
         pygame.time.set_timer(MONEY_EVENT, 0)
         pygame.time.set_timer(TICK_EVENT, 0)
-        buttons.clear()
         buttons_game.clear()
-        buttons.append(Button(WIDTH - 40, 0, 40, 40))
-        buttons[-1].func = B_CLOSE
-        buttons.append(Button(40, 40, 150, 40, "Levels"))
-        buttons[-1].func = B_LEVELS
-        buttons.append(Button(40, 100, 150, 40, "Heroes"))
-        buttons[-1].func = B_HEROES
-        buttons.append(Button(40, 160, 150, 40, "Enhance"))
-        buttons[-1].func = B_ENHANCE
+        if len(menu_button_manager.buttons) < 2:  # Создаем кнопки только если они еще не созданы
+            menu_button_manager.create_menu_buttons()
         pygame.mixer_music.fadeout(1000)
         entities.clear()
-        for index, button in enumerate(buttons):
-            event = button.render(screen)
-            if event == B_CLOSE:
-                execute = False
-            elif event == B_LEVELS:
-                stage = LEVEL_MENU
-                for j in range(len(buttons) - 1, 0, -1):
-                    del buttons[j]
         coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
         screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
 
     elif stage == LEVEL_MENU:
-        level_menu.render(screen)
-        coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
-        screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
-        buttons.append(Button(WIDTH - 160, 0, 100, 40, "Back"))
-        buttons[-1].func = MENU
-        for button in level_menu.buttons:
+        for j in range(len(menu_button_manager.buttons) - 1, 0, -1):
+            del menu_button_manager.buttons[j]
+        # Создаем кнопки для меню уровней, если они еще не созданы
+        if not level_button_manager.buttons:
+            level_button_manager.create_level_menu_buttons(levels)
+        # Отрисовка кнопок уровней и кнопки "Back"
+        for button in level_button_manager.buttons:
             event = button.render(screen)
-            if event and event.startswith("SELECT_LEVEL_"):
-                level_id = int(event.split("_")[-1])
-                selected_level = levels[level_id - 1]
+            if event == MENU:
+                stage = MENU  # Возвращаемся в главное меню при нажатии на кнопку "Back"
+            elif event and event.startswith("SELECT_LEVEL_"):
+                level_id = int(event.split("_")[-1])  # Получаем ID уровня из события
+                selected_level = levels[level_id - 1]  # Получаем выбранный уровень
                 if selected_level.is_unlocked:
                     pygame.time.set_timer(MONEY_EVENT, selected_level.money_speed)
                     pygame.time.set_timer(ENEMY_SPAWN_Monster, selected_level.enemy_spawn_interval)
@@ -262,7 +258,8 @@ while execute:
 
                     for i, character in enumerate(characters_game):
                         if character:
-                            button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,f"{character.cost} {character.name}", character.recharge)
+                            button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
+                                                 f"{character.cost} {character.name}", character.recharge)
                             button.set_color(pygame.Color("grey"), (0, 100, 100))
                             button.func = str(character.name)
                             buttons_game.append(button)
@@ -278,38 +275,103 @@ while execute:
                     pygame.mixer_music.load('../music/music_game/battle_3.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                     pygame.mixer_music.set_volume(0.6)
+                else:
+                    print(f"Level {level_id} is locked!")  # Уровень заблокирован
+        # Отрисовка текста с количеством монет (если нужно)
+        coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
+        screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
 
     elif stage == HEROES_MENU:
-        for j in range(len(buttons) - 1, 0, -1):
-            del buttons[j]
+        for j in range(len(menu_button_manager.buttons) - 1, 0, -1):
+            del menu_button_manager.buttons[j]
+        if not heroes_button_manager.buttons:  # Создаем кнопки только если они еще не созданы
+            heroes_button_manager.create_heroes_menu_buttons(characters, deck)
+        for index, button in enumerate(heroes_button_manager.buttons):
+            event = button.render(screen)
+            if event == MENU:
+                stage = MENU  # Возвращаемся в главное меню при нажатии на кнопку "Back"
+            elif event and event.startswith("SELECT_CHARACTER_"):
+                character_index = int(event.split("_")[-1])
+                heroes_menu.selected_character = characters[character_index]
+                heroes_menu.selected_slot = None  # Сбрасываем выбор слота
+                heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+            elif event and event.startswith("SELECT_SLOT_"):
+                slot_index = int(event.split("_")[-1])
+                if heroes_menu.selected_character:
+                    # Если выбран персонаж, добавляем его в слот
+                    if deck.slots[slot_index] is None:
+                        if deck.add_character(heroes_menu.selected_character, slot_index):
+                            heroes_menu.selected_slot = slot_index
+                            heroes_menu.selected_character = None
+                            heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+                            db.save_deck(deck)  # Сохраняем колоду
+                        else:
+                            print("Character is already in deck!")
+                    else:
+                        if deck.replace_character(heroes_menu.selected_character, slot_index):
+                            heroes_menu.selected_slot = slot_index
+                            heroes_menu.selected_character = None
+                            heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+                            db.save_deck(deck)  # Сохраняем колоду
+                        else:
+                            print("Character is already in deck!")
+                else:
+                    # Если персонаж не выбран, просто выбираем слот
+                    heroes_menu.selected_slot = slot_index
+                    heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+            elif event == "DELETE_CHARACTER":
+                if heroes_menu.selected_slot is not None and deck.slots[heroes_menu.selected_slot] is not None:
+                    # Удаляем персонажа из выбранного слота
+                    deck.remove_character(heroes_menu.selected_slot)
+                    heroes_menu.selected_slot = None
+                    heroes_menu.selected_character = None
+                    heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+                    db.save_deck(deck)  # Сохраняем колоду
         coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
         screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
-        buttons.append(Button(WIDTH - 160, 0, 100, 40, "Back"))
-        buttons[-1].func = MENU
-        heroes_menu.render(screen)
-        for button in heroes_menu.buttons:
-            event = button.render(screen)
-            if event:
-                heroes_menu.handle_event(event)
-        if heroes_menu.delete_button:
-            delete_event = heroes_menu.delete_button.render(screen)
-            if delete_event == "DELETE_CHARACTER":
-                heroes_menu.handle_event("DELETE_CHARACTER")
 
     elif stage == ENHANCE_MENU:
-        # Создаем EnhanceMenu только при переходе в меню улучшений
-        enhance_menu = EnhanceMenu(characters, bases[0], coin, db, levels)
-        for j in range(len(buttons) - 1, 0, -1):
-            del buttons[j]
+        for j in range(len(menu_button_manager.buttons) - 1, 0, -1):
+            del menu_button_manager.buttons[j]
+        # Создаем кнопки для меню улучшений, если они еще не созданы
+        if not enhance_button_manager.buttons:
+            enhance_button_manager.create_enhance_menu_buttons(characters)
+        # Обработка событий кнопок
+        for index, button in enumerate(enhance_button_manager.buttons):
+            event = button.render(screen)
+            if event == MENU:
+                stage = MENU  # Возвращаемся в главное меню при нажатии на кнопку "Back"
+            elif event and event.startswith("UPGRADE_CHARACTER_"):
+                character_index = int(event.split("_")[-1])
+                character = characters[character_index]
+                if coin.coins >= character.upgrade_cost:
+                    coin.coins -= character.upgrade_cost
+                    character.upgrade()
+                    db.save_character_upgrades(characters)  # Сохраняем данные о прокачке персонажей
+                    db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
+                    enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
+            elif event == "UPGRADE_BASE_HP":
+                bases[0].upgrade_hp()
+                db.save_base_upgrades(bases[0])  # Сохраняем данные о прокачке базы
+                db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
+                enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
+            elif event == "UPGRADE_BASE_LIMIT_MONEY":
+                bases[0].upgrade_limit_money()
+                db.save_base_upgrades(bases[0])  # Сохраняем данные о прокачке базы
+                db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
+                enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
+            elif event == "UPGRADE_BASE_SPEED_MONEY":
+                bases[0].upgrade_speed_money()
+                db.save_base_upgrades(bases[0])  # Сохраняем данные о прокачке базы
+                db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
+                enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
+
+        # Отрисовка кнопок
+        enhance_button_manager.render_buttons(screen)
+
+        # Отрисовка текста с количеством монет
         coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
         screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
-        buttons.append(Button(WIDTH - 160, 0, 100, 40, "Back"))
-        buttons[-1].func = MENU
-        enhance_menu.render(screen)
-        for button in enhance_menu.buttons:
-            event = button.render(screen)
-            if event:
-                enhance_menu.handle_event(event)
 
     elif stage == GAME:
         pygame.mixer_music.set_volume(slider.Volume_digit())
@@ -318,7 +380,7 @@ while execute:
         game.render(screen)
         base_def_game.render_def_base(screen)
         screen.blit(money_render, (0, 0))
-        buttons.clear()
+        menu_button_manager.buttons.clear()
 
         # Отрисовка игровых кнопок
         for button in buttons_game:
@@ -334,8 +396,9 @@ while execute:
                         # Открываем следующий уровень
                         if selected_level.level_id < len(levels):
                             levels[selected_level.level_id].is_unlocked = True
-                            level_menu.update_buttons()
+                            level_button_manager.create_level_menu_buttons(levels)
                     db.save_progress(levels, coin.coins)
+                    level_menu.update_buttons()
                     stage = MENU
                     print(game_over)
                 elif 'play' in game_over:
@@ -354,14 +417,27 @@ while execute:
 
     if pause is True:
         if stage == GAME:
+            # Отрисовка элементов паузы
             Rail.Render_rail(screen)
             slider.Render_slider(screen)
-            buttons.append(Button(WIDTH - 40, 0, 40, 40))
-            buttons[-1].func = B_CLOSE
-            buttons.append(Button(WIDTH - 160, 0, 100, 40, "Menu"))
-            buttons[-1].func = MENU_PAUSE
             screen.blit(TEXT_PAUSE, (200, 200))
             screen.blit(TEXT_PRESS_ESC, (220, 255))
+
+            # Создаем кнопки для паузы, если они еще не созданы
+            if not pause_button_manager.buttons:
+                pause_button_manager.create_pause_buttons()
+
+            # Обработка событий кнопок паузы
+            for index, button in enumerate(pause_button_manager.buttons):
+                event = button.render(screen)
+                if event == B_CLOSE:
+                    execute = False  # Закрываем игру
+                elif event == MENU_PAUSE:
+                    stage = MENU  # Возвращаемся в главное меню
+                    pause = False  # Снимаем паузу
+
+            # Отрисовка кнопок паузы
+            pause_button_manager.render_buttons(screen)
     clock.tick(FPS)
     pygame.display.flip()
 pygame.quit()

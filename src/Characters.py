@@ -22,5 +22,5 @@ class Character:
         self.hp += 20  # Увеличиваем здоровье
         self.attack += 5  # Увеличиваем урон
         self.upgrade_cost += 25  # Увеличиваем стоимость следующего улучшения
-        if self.recharge > 20:
-            self.recharge -= 10
+        if self.recharge > 10:
+            self.recharge -= 5
