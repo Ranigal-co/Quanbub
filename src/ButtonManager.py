@@ -132,6 +132,26 @@ class ButtonManager:
         menu_button.func = MENU_PAUSE
         self.buttons.append(menu_button)
 
+    def create_results_buttons(self, is_victory, current_level, levels):
+        """Создает кнопки для меню результатов."""
+        self.buttons.clear()
+
+        # Кнопка "Меню"
+        menu_button = Button(WIDTH // 2 - 75, HEIGHT - 150, 150, 40, "Menu")
+        menu_button.func = MENU
+        self.buttons.append(menu_button)
+
+        # Кнопка "Перепройти уровень"
+        retry_button = Button(WIDTH // 2 - 75, HEIGHT - 100, 150, 40, "Retry Level")
+        retry_button.func = "RETRY_LEVEL"
+        self.buttons.append(retry_button)
+
+        # Кнопка "Следующий уровень" (только если победа и есть следующий уровень)
+        if is_victory and current_level.level_id < len(levels):
+            next_level_button = Button(WIDTH // 2 - 75, HEIGHT - 50, 150, 40, "Next Level")
+            next_level_button.func = "NEXT_LEVEL"
+            self.buttons.append(next_level_button)
+
     def handle_events(self, event):
         """Обрабатывает события кнопок."""
         for button in self.buttons:

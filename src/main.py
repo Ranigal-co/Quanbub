@@ -13,7 +13,7 @@ from HeroesMenu import HeroesMenu
 from Characters import Character
 from EnhanceMenu import EnhanceMenu
 from ButtonManager import *
-
+from src.ResultsMenu import ResultsMenu
 
 buttons_game = list()
 
@@ -29,6 +29,7 @@ slider = Slider(725, 15, 5)
 entities = list()
 
 game = None
+results_menu = None
 base_def_game = Game()
 menu = Menu()
 stage = MENU
@@ -102,8 +103,7 @@ level_button_manager = ButtonManager()
 heroes_button_manager = ButtonManager(heroes_menu)
 enhance_button_manager = ButtonManager(heroes_menu, enhance_menu)
 pause_button_manager = ButtonManager()
-
-coin.coins = 1000
+results_button_manager = ButtonManager()
 
 while execute:
     screen.fill((0, 0, 0))
@@ -397,9 +397,15 @@ while execute:
                         if selected_level.level_id < len(levels):
                             levels[selected_level.level_id].is_unlocked = True
                             level_button_manager.create_level_menu_buttons(levels)
+                        # Создаем меню результатов для победы
+                        results_menu = ResultsMenu(True, levels[selected_level.level_id - 1].coins, selected_level, levels, results_button_manager)
+                    else:
+                        # Создаем меню результатов для поражения
+                        results_menu = ResultsMenu(False, 0, selected_level, levels, results_button_manager)
                     db.save_progress(levels, coin.coins)
                     level_menu.update_buttons()
-                    stage = MENU
+                    stage = RESULTS  # Переходим на стадию результатов
+                    pygame.mixer_music.fadeout(500)
                     print(game_over)
                 elif 'play' in game_over:
                     sound_game['hit_defender'].play()
@@ -414,6 +420,107 @@ while execute:
             entity.render(screen)
             entity.render_font(screen)
         money_text = f'Money: {game.money}/{game.limit_money}'
+
+    elif stage == RESULTS:
+        buttons_game.clear()
+        if results_menu:
+            # Отрисовываем меню результатов
+            results_menu.render(screen)
+            for index, button in enumerate(results_button_manager.buttons):
+                event = button.render(screen)
+                if event == MENU:
+                    stage = MENU  # Возвращаемся в главное меню
+                    results_menu = None  # Сбрасываем меню результатов
+                elif event == "RETRY_LEVEL":
+                    # Перезапускаем текущий уровень
+                    entities.clear()
+                    results_menu = None
+                    if selected_level.is_unlocked:
+                        pygame.time.set_timer(MONEY_EVENT, selected_level.money_speed)
+                        pygame.time.set_timer(ENEMY_SPAWN_Monster, selected_level.enemy_spawn_interval)
+                        pygame.time.set_timer(ENEMY_SPAWN_Boss, selected_level.boss_spawn_interval)
+                        pygame.time.set_timer(TICK_EVENT, TICK)
+                        stage = GAME
+                        game = Game()
+                        game.money = selected_level.initial_money
+                        if len(bases) > 1:
+                            del bases[-1]
+                        bases[0].hp = bases[0].hp_select
+                        bases[0].lvl = 1
+                        bases[0].cost_lvl = 50
+                        game.limit_money = bases[0].limit_money
+                        bases.append(game.enemy_base)  # Теперь defender_base идет первым, а enemy_base вторым
+
+                        buttons_game.clear()
+                        # Создание кнопок для персонажей из колоды
+                        characters_game = deck.get_characters()
+
+                        for i, character in enumerate(characters_game):
+                            if character:
+                                button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
+                                                     f"{character.cost} {character.name}", character.recharge)
+                                button.set_color(pygame.Color("grey"), (0, 100, 100))
+                                button.func = str(character.name)
+                                buttons_game.append(button)
+
+                        buttons_game.append(
+                            Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                        buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
+                        buttons_game[-1].func = B_LVL_UP
+
+                        pos_music_game = 0
+                        pos_music_pause = 0
+                        pygame.mixer_music.fadeout(1000)
+                        pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                        pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
+                        pygame.mixer_music.set_volume(0.6)
+                elif event == "NEXT_LEVEL":
+                    # Переходим на следующий уровень
+                    entities.clear()
+                    results_menu = None
+                    if selected_level.level_id < len(levels):
+                        level_id = selected_level.level_id
+                        selected_level = levels[level_id]
+                        if selected_level.is_unlocked:
+                            pygame.time.set_timer(MONEY_EVENT, selected_level.money_speed)
+                            pygame.time.set_timer(ENEMY_SPAWN_Monster, selected_level.enemy_spawn_interval)
+                            pygame.time.set_timer(ENEMY_SPAWN_Boss, selected_level.boss_spawn_interval)
+                            pygame.time.set_timer(TICK_EVENT, TICK)
+                            stage = GAME
+                            game = Game()
+                            game.money = selected_level.initial_money
+                            if len(bases) > 1:
+                                del bases[-1]
+                            bases[0].hp = bases[0].hp_select
+                            bases[0].lvl = 1
+                            bases[0].cost_lvl = 50
+                            game.limit_money = bases[0].limit_money
+                            bases.append(game.enemy_base)  # Теперь defender_base идет первым, а enemy_base вторым
+
+                            buttons_game.clear()
+                            # Создание кнопок для персонажей из колоды
+                            characters_game = deck.get_characters()
+
+                            for i, character in enumerate(characters_game):
+                                if character:
+                                    button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
+                                                         f"{character.cost} {character.name}", character.recharge)
+                                    button.set_color(pygame.Color("grey"), (0, 100, 100))
+                                    button.func = str(character.name)
+                                    buttons_game.append(button)
+
+                            buttons_game.append(
+                                Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}",
+                                            2))
+                            buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
+                            buttons_game[-1].func = B_LVL_UP
+
+                            pos_music_game = 0
+                            pos_music_pause = 0
+                            pygame.mixer_music.fadeout(1000)
+                            pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                            pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
+                            pygame.mixer_music.set_volume(0.6)
 
     if pause is True:
         if stage == GAME:
