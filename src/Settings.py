@@ -73,3 +73,14 @@ TEXT_START_GAME = FONT_PRESS_ESC.render("Start game", True, (255, 255, 255))
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.NOFRAME)
 
 n_im = pygame.image.load("../sprites/spr_environment/none_spr.png").convert_alpha()
+
+'''
+    Звуки
+'''
+sound_game = {'buy':pygame.mixer.Sound('../music/sounds_game/buy.mp3'),
+              'pause':pygame.mixer.Sound('../music/sounds_game/pause.mp3'),
+              'hit_defender':pygame.mixer.Sound('../music/sounds_game/hit.mp3'),
+              'victory.mp3':pygame.mixer.Sound('../music/sounds_game/victory.mp3'),
+              'lose.mp3':pygame.mixer.Sound('../music/sounds_game/lose.mp3'),
+              'button':pygame.mixer.Sound('../music/sounds_game/button.mp3')}
+sound_game['button'].set_volume(0.4)

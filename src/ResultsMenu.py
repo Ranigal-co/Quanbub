@@ -20,6 +20,10 @@ class ResultsMenu:
             result_text = FONT_GAME.render("Defeat!", True, (255, 0, 0))
             coins_text = FONT_PRESS_ESC.render("Try again!", True, (255, 255, 255))
 
+        # Отображение текущего уровня
+        level_text = FONT_PRESS_ESC.render(f"Level: {self.current_level.level_id}", True, (255, 255, 255))
+        screen.blit(level_text, (WIDTH // 2 - level_text.get_width() // 2, 50))
+
         # Отрисовка текста
         screen.blit(result_text, (WIDTH // 2 - result_text.get_width() // 2, 100))
         screen.blit(coins_text, (WIDTH // 2 - coins_text.get_width() // 2, 150))
