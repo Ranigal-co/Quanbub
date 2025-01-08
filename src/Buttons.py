@@ -32,30 +32,28 @@ class Button:
 
         self.color_cursor = (0, 100, 0)
         self.color_without_cursor = (0, 200, 0)
+        # Флаг для отслеживания нажатия кнопки мыши
+        self.is_pressed = False
 
-    '''
-        Делаем отрисовку объекта класса
-    '''
     def render(self, screen):
         x, y = pygame.mouse.get_pos()
         color = self.color_without_cursor
-        '''
-            Пересечение прямоугольника и курсора
-        '''
         collide = self.button.collidepoint(x, y)
-        if collide and pygame.mouse.get_pressed()[0] is True:
+
+        if collide and pygame.mouse.get_pressed()[0]:
+            self.is_pressed = True
+        elif self.is_pressed and not pygame.mouse.get_pressed()[0] and collide:
+            self.is_pressed = False
             return self.func
-        elif collide:
+        elif not pygame.mouse.get_pressed()[0]:
+            self.is_pressed = False
+
+        if collide:
             color = self.color_cursor
+
         pygame.draw.rect(screen, color, self.button, border_radius=10)
         if self.text is not None:
             screen.blit(self.text, (self.x, self.y))
-
-    '''
-        Установить цвет кнопок в разных состояниях, где
-            without - цвет кнопки в обычном состоянии
-            cursor  - цвет кнопки при наведении на нее
-    '''
 
     def set_color(self, without, cursor):
         self.color_without_cursor = without
