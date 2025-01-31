@@ -235,7 +235,9 @@ while execute:
                 sound_game['buy'].play()
                 buttons_game[index].recharge = buttons_game[index].const_rech
                 del buttons_game[index]
-                buttons_game.append(Button_game(5, HEIGHT - 80, 160, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                buttons_game.append(
+                    Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2,
+                                bases[0].cost_lvl))
                 buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                 buttons_game[-1].func = B_LVL_UP
             for char in characters_game:
@@ -296,13 +298,13 @@ while execute:
                     for i, character in enumerate(characters_game):
                         if character:
                             button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
-                                                 f"{character.cost} {character.name}", character.recharge)
+                                                 f"{character.name}", character.recharge, character.cost)
                             button.set_color(pygame.Color("grey"), (0, 100, 100))
                             button.func = str(character.name)
                             buttons_game.append(button)
 
                     buttons_game.append(
-                        Button_game(10, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                        Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2, bases[0].cost_lvl))
                     buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                     buttons_game[-1].func = B_LVL_UP
 
@@ -514,14 +516,13 @@ while execute:
                         for i, character in enumerate(characters_game):
                             if character:
                                 button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
-                                                     f"{character.cost} {character.name}", character.recharge)
+                                                     f"{character.name}", character.recharge, character.cost)
                                 button.set_color(pygame.Color("grey"), (0, 100, 100))
                                 button.func = str(character.name)
                                 buttons_game.append(button)
 
                         buttons_game.append(
-                            Button_game(10, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}",
-                                        2))
+                            Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2, bases[0].cost_lvl))
                         buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                         buttons_game[-1].func = B_LVL_UP
 
@@ -562,14 +563,14 @@ while execute:
                             for i, character in enumerate(characters_game):
                                 if character:
                                     button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
-                                                         f"{character.cost} {character.name}", character.recharge)
+                                                         f"{character.name}", character.recharge, character.cost)
                                     button.set_color(pygame.Color("grey"), (0, 100, 100))
                                     button.func = str(character.name)
                                     buttons_game.append(button)
 
                             buttons_game.append(
-                                Button_game(10, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}",
-                                            2))
+                                Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2,
+                                            bases[0].cost_lvl))
                             buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                             buttons_game[-1].func = B_LVL_UP
 

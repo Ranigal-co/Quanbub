@@ -61,11 +61,12 @@ class Button:
 
 
 class Button_game(Button):
-    def __init__(self, x, y, width, height, text, recharge=TICK):
+    def __init__(self, x, y, width, height, text, recharge=TICK, cost=0):
         super().__init__(x, y, width, height, text)
         self.recharge = recharge
         self.const_rech = recharge
         self.color_enable = (50, 50, 50)
+        self.cost = cost
 
     def recharge_func(self, money, cost):
         if self.recharge <= 0 and money >= cost:
@@ -95,13 +96,9 @@ class Button_game(Button):
                 elif collide:
                     color = self.color_cursor
                 pygame.draw.rect(screen, color, self.button, border_radius=10)
-                if self.text is not None:
-                    screen.blit(self.text, (self.x, self.y))
             else:
                 color = self.color_enable
                 pygame.draw.rect(screen, color, self.button, border_radius=10)
-                if self.text is not None:
-                    screen.blit(self.text, (self.x, self.y))
         else:
             if self.activate:
                 color = self.color_without_cursor
@@ -109,13 +106,15 @@ class Button_game(Button):
                     Пересечение прямоугольника и курсора
                 '''
                 pygame.draw.rect(screen, color, self.button, border_radius=10)
-                if self.text is not None:
-                    screen.blit(self.text, (self.x, self.y))
             else:
                 color = self.color_enable
                 pygame.draw.rect(screen, color, self.button, border_radius=10)
-                if self.text is not None:
-                    screen.blit(self.text, (self.x, self.y))
+        if self.text is not None:
+            screen.blit(self.text, (self.x, self.y))
+        rech = FONT_RECHARGE.render(str(self.recharge), True, pygame.Color("yellow"))
+        cost = FONT_RECHARGE.render(f"${str(self.cost)}", True, pygame.Color("yellow"))
+        screen.blit(rech, (self.x + 75 - rech.get_width() // 2, self.y + 40))
+        screen.blit(cost, (self.x, self.y - 20))
 
     def color_enable_f(self, color):
         self.color_enable = color
