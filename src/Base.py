@@ -24,9 +24,9 @@ class Base:
 
 
 class EnemyBase(Base):
-    def __init__(self):
+    def __init__(self, hp=STANDARD_BASE_HP_ENEMY):
         super().__init__(WIDTH - 50, HEIGHT - 200, 50, 50)
-        self.hp = STANDARD_BASE_HP_ENEMY
+        self.hp = hp
         self.type = ENEMY
 
     def attack_me(self, attack):

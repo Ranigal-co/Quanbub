@@ -32,10 +32,10 @@ class ButtonManager:
         # Кнопки для уровней
         for i, level in enumerate(levels):
             if level.is_unlocked:
-                button = Button(425, 280 + i * 60, 150, 40, f"Level {level.level_id}")
+                button = Button(425, 280 + i * 60, 210, 40, f"Level {level.level_id}")
                 button.set_color((200, 0, 0), (100, 0, 0))  # Цвета для разблокированного уровня
             else:
-                button = Button(425, 280 + i * 60, 150, 40, f"Level {level.level_id} (Locked)")
+                button = Button(425, 280 + i * 60, 210, 40, f"Level {level.level_id} (Locked)")
                 button.set_color((100, 100, 100), (100, 100, 100))  # Серый цвет для заблокированного уровня
             button.func = f"SELECT_LEVEL_{level.level_id}"
             self.buttons.append(button)
@@ -91,7 +91,7 @@ class ButtonManager:
         # Кнопки для улучшения персонажей
         for i, character in enumerate(characters):
             button_text = f"Upgrade {character.name} (Cost: {character.upgrade_cost})"
-            button = Button(380, 100 + i * 60, 300, 40, button_text)
+            button = Button(380, 100 + i * 60, 320, 40, button_text)
             button.func = f"UPGRADE_CHARACTER_{i}"
             self.buttons.append(button)
 

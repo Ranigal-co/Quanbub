@@ -1,6 +1,6 @@
 import random
 
-from Entities import Enemy, Defender, Hero, Shit
+from Entities import Enemy, Defender
 from Stages import Menu, Game
 from Buttons import Button_game
 from src.Entities import Monster, Boss
@@ -65,18 +65,19 @@ execute = True
 db = Database()
 levels = [
     Level(1, 7500, 60000, 200, 0, 100 + random.randint(0, 100)),
-    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150)),
-    Level(3, 2000, 20000, 200, 0, 100 + random.randint(50, 200)),
-    Level(4, 1000, 10000, 200, 0, 300 + random.randint(200, 600)),
-    Level(5, 500, 3000, 200, 0, 1000 + random.randint(1000, 5000))
+    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150), 750),
+    Level(3, 2000, 20000, 200, 0, 100 + random.randint(50, 200), 1000),
+    Level(4, 1000, 10000, 200, 0, 300 + random.randint(200, 600), 3000),
+    Level(5, 500, 3000, 200, 0, 1000 + random.randint(1000, 5000), 10000)
 ]
 
 characters = [
-    Character("Hero", 50, 200, 52, 36, AREA, 80, 50, 50),
-    Character("Shit", 25, 100, 101, 20, SINGLE, 40, 25, 20),
+    Character("Wall", 10, 230, 404, 5, AREA, 20, 19, 40),
+    Character("Shit", 25, 100, 101, 20, SINGLE, 40, 24, 20),
     Character("Archer", 20, 350, 37, 90, SINGLE, 150, 38, 60),
+    Character("Hero", 50, 200, 52, 36, AREA, 80, 52, 50),
     Character("Uber", 60, 220, 469, 170, AREA, 70, 213, 300),
-    Character("Alpha", 80, 170, 2469, 160, AREA, 73, 690, 600)
+    Character("Alpha", 80, 140, 2469, 160, AREA, 73, 690, 600)
 ]
 
 deck = db.load_deck(characters)
@@ -139,7 +140,6 @@ while execute:
         if current_music != "game_music":
             pygame.mixer_music.fadeout(500)
             pygame.mixer_music.load(f'../music/music_game/battle_{current_game_music}.mp3')  # Путь к музыке для игры
-            current_game_music = (current_game_music + 1) % 7
             pygame.mixer_music.play(loops=-1, fade_ms=500)
             pygame.mixer_music.set_volume(0.6)
             current_music = "game_music"
@@ -167,7 +167,7 @@ while execute:
                 if pause is True:
                     pos_music_pause = pygame.mixer_music.get_pos() / 1000
                     pygame.mixer_music.fadeout(500)
-                    pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                    pygame.mixer_music.load(f'../music/music_game/battle_{current_game_music}.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=500)
                     pygame.mixer_music.set_volume(0.6)
                     pause = False
@@ -279,7 +279,7 @@ while execute:
                     pygame.time.set_timer(ENEMY_SPAWN_Boss, selected_level.boss_spawn_interval)
                     pygame.time.set_timer(TICK_EVENT, TICK)
                     stage = GAME
-                    game = Game()
+                    game = Game(selected_level.enemy_hp_base)
                     game.money = selected_level.initial_money
                     if len(bases) > 1:
                         del bases[-1]
@@ -314,6 +314,8 @@ while execute:
                     pygame.mixer_music.load('../music/music_game/battle_3.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                     pygame.mixer_music.set_volume(0.6)
+
+                    current_game_music = (current_game_music + 1) % 7  # смена игровой музыки
                 else:
                     print(f"Level {level_id} is locked!")  # Уровень заблокирован
         # Отрисовка текста с количеством монет (если нужно)
