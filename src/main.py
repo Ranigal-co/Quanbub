@@ -177,7 +177,7 @@ while execute:
                     pause_button_manager.create_pause_buttons()  # Создаем кнопки паузы
         elif type == MONEY_EVENT:
             if pause is False:
-                if game.money + bases[0].speed_money <= game.limit_money:
+                if game.money < game.limit_money:
                     game.money += 1
         elif type == ENEMY_SPAWN_Monster:
             if pause is False:
@@ -222,7 +222,7 @@ while execute:
         event = button.render_b(screen, pause)
         if pause is False:
             if event == B_LVL_UP:
-                game.money -= bases[0].cost_lvl  # Теперь bases[0] ссылается на defender_base
+                game.money -= bases[0].cost_lvl  # bases[0] ссылается на defender_base
                 buttons_game[-1].func = B_LVL_UP
                 bases[0].lvl_up()
                 LVL = bases[0].lvl
@@ -426,7 +426,7 @@ while execute:
 
         # Отображение текущего уровня
         level_text = FONT_PRESS_ESC.render(f"Level: {selected_level.level_id}", True, (255, 255, 255))
-        screen.blit(level_text, (WIDTH - level_text.get_width(), 0))  # Позиция в верхнем левом углу
+        screen.blit(level_text, (WIDTH - level_text.get_width(), 0))  # Позиция в верхнем правом углу
 
         # Отрисовка игровых кнопок
         for button in buttons_game:
@@ -453,6 +453,7 @@ while execute:
                     db.save_progress(levels, coin.coins)
                     level_menu.update_buttons()
                     stage = RESULTS  # Переходим на стадию результатов
+                    bases[0].hp = bases[0].hp_select
                     pygame.mixer_music.fadeout(500)
                 elif 'play' in game_over:
                     sound_game['hit_defender'].play()
