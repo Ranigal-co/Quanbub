@@ -62,6 +62,7 @@ class Character:
             self.hp += (103 + self.level)  # Увеличиваем здоровье
             self.attack += self.level  # Увеличиваем урон
             self.upgrade_cost += 25  # Увеличиваем стоимость следующего улучшения
+            self.speed_move += 3
             self.level += 1
         else:
             self.hp += (103 + self.level * 5)  # Увеличиваем здоровье
