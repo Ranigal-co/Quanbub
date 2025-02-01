@@ -49,8 +49,11 @@ class DefenderBase(Base):
         self.speed_money = speed_money  # Скорость накопления денег
 
         self.hp_upgrade_cost = 50  # Стоимость улучшения здоровья
+        self.hp_level = 1
         self.limit_money_upgrade_cost = 50  # Стоимость улучшения лимита денег
+        self.limit_money_level = 1
         self.speed_money_upgrade_cost = 50  # Стоимость улучшения скорости накопления денег
+        self.speed_money_level = 1
         self.coin = None
 
     def lvl_up(self):
@@ -82,7 +85,9 @@ class DefenderBase(Base):
             self.hp_select += 100
             self.hp_upgrade_cost += 25  # Увеличиваем стоимость следующего улучшения
             sound_game['buy'].play()
-            print(f"Base HP upgraded to {self.hp}!")
+            self.hp_level += 1
+        else:
+            sound_game["hit_defender"].play()
 
     def upgrade_limit_money(self):
         """Улучшаем лимит денег."""
@@ -91,7 +96,9 @@ class DefenderBase(Base):
             self.limit_money += 100 # Увеличиваем лимит денег на 100
             self.limit_money_upgrade_cost += 25  # Увеличиваем стоимость следующего улучшения
             sound_game['buy'].play()
-            print(f"Base limit money upgraded to {self.limit_money}!")
+            self.limit_money_level += 1
+        else:
+            sound_game["hit_defender"].play()
 
     def upgrade_speed_money(self):
         """Улучшаем скорость накопления денег."""
@@ -100,4 +107,6 @@ class DefenderBase(Base):
             self.speed_money += 0.2  # Увеличиваем скорость накопления денег на 0.2
             self.speed_money_upgrade_cost += 25  # Увеличиваем стоимость следующего улучшения
             sound_game['buy'].play()
-            print(f"Base speed money upgraded to {self.speed_money}!")
+            self.speed_money_level += 1
+        else:
+            sound_game["hit_defender"].play()

@@ -319,7 +319,7 @@ while execute:
 
                     current_game_music = (current_game_music + 1) % 7  # смена игровой музыки
                 else:
-                    print(f"Level {level_id} is locked!")  # Уровень заблокирован
+                    sound_game["hit_defender"].play()
         # Отрисовка текста с количеством монет (если нужно)
         coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
         screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
@@ -329,6 +329,8 @@ while execute:
             del menu_button_manager.buttons[j]
         if not heroes_button_manager.buttons:  # Создаем кнопки только если они еще не созданы
             heroes_button_manager.create_heroes_menu_buttons(characters, deck)
+        # отрисовка информации
+        heroes_menu.info(screen, characters)
         for index, button in enumerate(heroes_button_manager.buttons):
             event = button.render(screen)
             if event == MENU:
@@ -352,7 +354,7 @@ while execute:
                             db.save_deck(deck)  # Сохраняем колоду
                             sound_game['button'].play()
                         else:
-                            print("Character is already in deck!")
+                            sound_game["hit_defender"].play()
                     else:
                         if deck.replace_character(heroes_menu.selected_character, slot_index):
                             heroes_menu.selected_slot = slot_index
@@ -361,7 +363,7 @@ while execute:
                             db.save_deck(deck)  # Сохраняем колоду
                             sound_game['button'].play()
                         else:
-                            print("Character is already in deck!")
+                            sound_game["hit_defender"].play()
                 else:
                     # Если персонаж не выбран, просто выбираем слот
                     heroes_menu.selected_slot = slot_index
@@ -386,6 +388,7 @@ while execute:
         if not enhance_button_manager.buttons:
             enhance_button_manager.create_enhance_menu_buttons(characters)
         # Обработка событий кнопок
+        enhance_menu.info(screen, characters)
         for index, button in enumerate(enhance_button_manager.buttons):
             event = button.render(screen)
             if event == MENU:
@@ -401,6 +404,8 @@ while execute:
                     db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
                     enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
                     sound_game['buy'].play()
+                else:
+                    sound_game["hit_defender"].play()
             elif event == "UPGRADE_BASE_HP":
                 bases[0].upgrade_hp()
                 db.save_base_upgrades(bases[0])  # Сохраняем данные о прокачке базы

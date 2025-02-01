@@ -114,7 +114,7 @@ class Button_game(Button):
         rech = FONT_RECHARGE.render(str(self.recharge), True, pygame.Color("yellow"))
         cost = FONT_RECHARGE.render(f"${str(self.cost)}", True, pygame.Color("yellow"))
         screen.blit(rech, (self.x + 75 - rech.get_width() // 2, self.y + 40))
-        screen.blit(cost, (self.x, self.y - 20))
+        screen.blit(cost, (self.x, self.y - 25))
 
     def color_enable_f(self, color):
         self.color_enable = color

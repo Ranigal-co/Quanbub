@@ -16,13 +16,13 @@ class ButtonManager:
         self.buttons.append(Button(WIDTH - 40, 0, 40, 40))
         self.buttons[-1].func = B_CLOSE
 
-        self.buttons.append(Button(40, 40, 150, 40, "Levels"))
+        self.buttons.append(Button(WIDTH // 2 - 75, HEIGHT // 2 - 60, 150, 40, "Levels"))
         self.buttons[-1].func = B_LEVELS
 
-        self.buttons.append(Button(40, 100, 150, 40, "Heroes"))
+        self.buttons.append(Button(WIDTH // 2 - 75, HEIGHT // 2, 150, 40, "Heroes"))
         self.buttons[-1].func = B_HEROES
 
-        self.buttons.append(Button(40, 160, 150, 40, "Enhance"))
+        self.buttons.append(Button(WIDTH // 2 - 75, HEIGHT // 2 + 60, 150, 40, "Enhance"))
         self.buttons[-1].func = B_ENHANCE
 
     def create_level_menu_buttons(self, levels):
@@ -51,7 +51,7 @@ class ButtonManager:
 
         # Кнопки для персонажей
         for i, character in enumerate(characters):
-            button_text = f"{character.name} (In Deck)" if character.in_deck else character.name
+            button_text = f"{character.name}" if character.in_deck else character.name
             button = Button(WIDTH - 240, 100 + i * 60, 200, 40, button_text)
             button.func = f"SELECT_CHARACTER_{i}"
             if self.heroes_menu.selected_character == character:
@@ -63,7 +63,7 @@ class ButtonManager:
         # Кнопки для слотов колоды
         for i in range(5):
             slot_character = deck.slots[i]
-            button_text = f"Slot {i + 1}: {slot_character.name}" if slot_character else f"Slot {i + 1}"
+            button_text = f"{slot_character.name}" if slot_character else f""
             button = Button(40 + i * 180, HEIGHT - 80, 150, 40, button_text)
             button.func = f"SELECT_SLOT_{i}"
             if self.heroes_menu.selected_slot == i:
@@ -74,7 +74,7 @@ class ButtonManager:
 
         # Кнопка "Delete" (появляется только при выборе слота с персонажем)
         if self.heroes_menu.selected_slot is not None and deck.slots[self.heroes_menu.selected_slot] is not None:
-            delete_button = Button(WIDTH - 240, HEIGHT - 120, 200, 40, "Delete")
+            delete_button = Button(40, HEIGHT - 180, 100, 40, "Delete")
             delete_button.func = "DELETE_CHARACTER"
             delete_button.set_color((255, 0, 0), (200, 0, 0))  # Красный цвет для кнопки удаления
             self.buttons.append(delete_button)
@@ -90,26 +90,26 @@ class ButtonManager:
 
         # Кнопки для улучшения персонажей
         for i, character in enumerate(characters):
-            button_text = f"Upgrade {character.name} (Cost: {character.upgrade_cost})"
-            button = Button(380, 100 + i * 60, 320, 40, button_text)
+            button_text = f"{character.name}"
+            button = Button(WIDTH - 330, 100 + i * 60, 160, 40, button_text)
             button.func = f"UPGRADE_CHARACTER_{i}"
             self.buttons.append(button)
 
         # Кнопка для улучшения здоровья базы
-        button_text = f"Base HP (Cost: {self.enhance_menu.defender_base.hp_upgrade_cost})"
-        button = Button(40, 400, 300, 40, button_text)
+        button_text = f"Base HP"
+        button = Button(60, 100, 200, 40, button_text)
         button.func = "UPGRADE_BASE_HP"
         self.buttons.append(button)
 
         # Кнопка для улучшения лимита денег базы
-        button_text = f"Limit Money (Cost: {self.enhance_menu.defender_base.limit_money_upgrade_cost})"
-        button = Button(40, 460, 300, 40, button_text)
+        button_text = f"Limit Money"
+        button = Button(60, 160, 200, 40, button_text)
         button.func = "UPGRADE_BASE_LIMIT_MONEY"
         self.buttons.append(button)
 
         # Кнопка для улучшения скорости накопления денег базы
-        button_text = f"Speed Money (Cost: {self.enhance_menu.defender_base.speed_money_upgrade_cost})"
-        button = Button(40, 520, 300, 40, button_text)
+        button_text = f"Speed Money"
+        button = Button(60, 220, 200, 40, button_text)
         button.func = "UPGRADE_BASE_SPEED_MONEY"
         self.buttons.append(button)
 

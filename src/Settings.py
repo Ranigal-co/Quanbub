@@ -60,7 +60,7 @@ B_LVL_UP = "Lvl up"
     Шрифты константы
 '''
 FONT_GAME = pygame.font.Font("../fonts/bit.ttf", 50)
-FONT_RECHARGE = pygame.font.Font("../fonts/bit.ttf", 16)
+FONT_RECHARGE = pygame.font.Font("../fonts/bit.ttf", 18)
 FONT_PRESS_ESC = pygame.font.Font("../fonts/bit.ttf", 20)
 FONT_HP_ENTITIES = pygame.font.Font("../fonts/bit.ttf", 16)
 
