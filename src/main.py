@@ -1,6 +1,6 @@
 import random
 
-from Entities import Enemy, Defender, Hero, Shit
+from Entities import Enemy, Defender
 from Stages import Menu, Game
 from Buttons import Button_game
 from src.Entities import Monster, Boss
@@ -15,8 +15,6 @@ from src.ResultsMenu import ResultsMenu
 
 buttons_game = list()
 
-USE_FIGHTER = Hero(), Shit()
-fighter1, fighter2 = USE_FIGHTER
 USE_ENEMY = Monster(), Boss()
 enemy1, enemy2 = USE_ENEMY
 
@@ -31,6 +29,7 @@ results_menu = None
 base_def_game = Game()
 current_music = None
 current_menu_music = 0
+current_game_music = 0
 menu = Menu()
 stage = MENU
 bases = [base_def_game.defender_base]
@@ -66,13 +65,19 @@ execute = True
 db = Database()
 levels = [
     Level(1, 7500, 60000, 200, 0, 100 + random.randint(0, 100)),
-    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150)),
-    Level(3, 2000, 20000, 200, 0, 100 + random.randint(50, 200))
+    Level(2, 5000, 45000, 200, 0, 100 + random.randint(25, 150), 750),
+    Level(3, 2000, 20000, 200, 0, 100 + random.randint(50, 200), 1000),
+    Level(4, 1000, 10000, 200, 0, 300 + random.randint(200, 600), 3000),
+    Level(5, 500, 3000, 200, 0, 1000 + random.randint(1000, 5000), 10000)
 ]
 
 characters = [
-    Character("Hero", 50, 200, 52, 36, AREA, 80, 50, 50),
-    Character("Shit", 25, 100, 100, 20, SINGLE, 40, 25, 20)
+    Character("Wall", 10, 230, 404, 5, AREA, 20, 19, 40),
+    Character("Shit", 25, 100, 101, 20, SINGLE, 40, 24, 20),
+    Character("Archer", 20, 350, 37, 90, SINGLE, 150, 38, 60),
+    Character("Hero", 50, 200, 52, 36, AREA, 80, 52, 50),
+    Character("Uber", 60, 220, 469, 170, AREA, 70, 213, 300),
+    Character("Alpha", 80, 140, 2469, 160, AREA, 73, 690, 600)
 ]
 
 deck = db.load_deck(characters)
@@ -134,7 +139,7 @@ while execute:
     elif stage == GAME:
         if current_music != "game_music":
             pygame.mixer_music.fadeout(500)
-            pygame.mixer_music.load('../music/music_game/battle_3.mp3')  # Путь к музыке для игры
+            pygame.mixer_music.load(f'../music/music_game/battle_{current_game_music}.mp3')  # Путь к музыке для игры
             pygame.mixer_music.play(loops=-1, fade_ms=500)
             pygame.mixer_music.set_volume(0.6)
             current_music = "game_music"
@@ -162,7 +167,7 @@ while execute:
                 if pause is True:
                     pos_music_pause = pygame.mixer_music.get_pos() / 1000
                     pygame.mixer_music.fadeout(500)
-                    pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                    pygame.mixer_music.load(f'../music/music_game/battle_{current_game_music}.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=500)
                     pygame.mixer_music.set_volume(0.6)
                     pause = False
@@ -230,7 +235,9 @@ while execute:
                 sound_game['buy'].play()
                 buttons_game[index].recharge = buttons_game[index].const_rech
                 del buttons_game[index]
-                buttons_game.append(Button_game(50, HEIGHT - 80, 175, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                buttons_game.append(
+                    Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2,
+                                bases[0].cost_lvl))
                 buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                 buttons_game[-1].func = B_LVL_UP
             for char in characters_game:
@@ -274,7 +281,7 @@ while execute:
                     pygame.time.set_timer(ENEMY_SPAWN_Boss, selected_level.boss_spawn_interval)
                     pygame.time.set_timer(TICK_EVENT, TICK)
                     stage = GAME
-                    game = Game()
+                    game = Game(selected_level.enemy_hp_base)
                     game.money = selected_level.initial_money
                     if len(bases) > 1:
                         del bases[-1]
@@ -290,14 +297,14 @@ while execute:
 
                     for i, character in enumerate(characters_game):
                         if character:
-                            button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
-                                                 f"{character.cost} {character.name}", character.recharge)
+                            button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
+                                                 f"{character.name}", character.recharge, character.cost)
                             button.set_color(pygame.Color("grey"), (0, 100, 100))
                             button.func = str(character.name)
                             buttons_game.append(button)
 
                     buttons_game.append(
-                        Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                        Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2, bases[0].cost_lvl))
                     buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                     buttons_game[-1].func = B_LVL_UP
 
@@ -309,8 +316,10 @@ while execute:
                     pygame.mixer_music.load('../music/music_game/battle_3.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                     pygame.mixer_music.set_volume(0.6)
+
+                    current_game_music = (current_game_music + 1) % 7  # смена игровой музыки
                 else:
-                    print(f"Level {level_id} is locked!")  # Уровень заблокирован
+                    sound_game["hit_defender"].play()
         # Отрисовка текста с количеством монет (если нужно)
         coins_render = FONT_GAME.render(f'Coins: {coin.coins}', True, pygame.Color("yellow"))
         screen.blit(coins_render, (WIDTH / 2 - coins_render.get_width() / 2, 0))
@@ -320,6 +329,8 @@ while execute:
             del menu_button_manager.buttons[j]
         if not heroes_button_manager.buttons:  # Создаем кнопки только если они еще не созданы
             heroes_button_manager.create_heroes_menu_buttons(characters, deck)
+        # отрисовка информации
+        heroes_menu.info(screen, characters)
         for index, button in enumerate(heroes_button_manager.buttons):
             event = button.render(screen)
             if event == MENU:
@@ -343,7 +354,7 @@ while execute:
                             db.save_deck(deck)  # Сохраняем колоду
                             sound_game['button'].play()
                         else:
-                            print("Character is already in deck!")
+                            sound_game["hit_defender"].play()
                     else:
                         if deck.replace_character(heroes_menu.selected_character, slot_index):
                             heroes_menu.selected_slot = slot_index
@@ -352,7 +363,7 @@ while execute:
                             db.save_deck(deck)  # Сохраняем колоду
                             sound_game['button'].play()
                         else:
-                            print("Character is already in deck!")
+                            sound_game["hit_defender"].play()
                 else:
                     # Если персонаж не выбран, просто выбираем слот
                     heroes_menu.selected_slot = slot_index
@@ -377,6 +388,7 @@ while execute:
         if not enhance_button_manager.buttons:
             enhance_button_manager.create_enhance_menu_buttons(characters)
         # Обработка событий кнопок
+        enhance_menu.info(screen, characters)
         for index, button in enumerate(enhance_button_manager.buttons):
             event = button.render(screen)
             if event == MENU:
@@ -392,6 +404,8 @@ while execute:
                     db.save_progress(levels, coin.coins)  # Сохраняем текущее количество монет
                     enhance_button_manager.create_enhance_menu_buttons(characters)  # Обновляем кнопки
                     sound_game['buy'].play()
+                else:
+                    sound_game["hit_defender"].play()
             elif event == "UPGRADE_BASE_HP":
                 bases[0].upgrade_hp()
                 db.save_base_upgrades(bases[0])  # Сохраняем данные о прокачке базы
@@ -506,14 +520,14 @@ while execute:
 
                         for i, character in enumerate(characters_game):
                             if character:
-                                button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
-                                                     f"{character.cost} {character.name}", character.recharge)
+                                button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
+                                                     f"{character.name}", character.recharge, character.cost)
                                 button.set_color(pygame.Color("grey"), (0, 100, 100))
                                 button.func = str(character.name)
                                 buttons_game.append(button)
 
                         buttons_game.append(
-                            Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}", 2))
+                            Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2, bases[0].cost_lvl))
                         buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                         buttons_game[-1].func = B_LVL_UP
 
@@ -553,15 +567,15 @@ while execute:
 
                             for i, character in enumerate(characters_game):
                                 if character:
-                                    button = Button_game(250 + i * 200, HEIGHT - 80, 150, 40,
-                                                         f"{character.cost} {character.name}", character.recharge)
+                                    button = Button_game(170 + i * 160, HEIGHT - 80, 150, 40,
+                                                         f"{character.name}", character.recharge, character.cost)
                                     button.set_color(pygame.Color("grey"), (0, 100, 100))
                                     button.func = str(character.name)
                                     buttons_game.append(button)
 
                             buttons_game.append(
-                                Button_game(50, HEIGHT - 80, 150, 40, f"Lvl: {bases[0].lvl} up: {bases[0].cost_lvl}",
-                                            2))
+                                Button_game(10, HEIGHT - 80, 150, 40, f"Base Lvl: {bases[0].lvl}", 2,
+                                            bases[0].cost_lvl))
                             buttons_game[-1].set_color(pygame.Color("grey"), (0, 100, 100))
                             buttons_game[-1].func = B_LVL_UP
 

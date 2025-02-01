@@ -20,7 +20,8 @@ class Database:
                      (character_name TEXT PRIMARY KEY, level INTEGER, upgrade_cost INTEGER)''')
         c.execute('''CREATE TABLE IF NOT EXISTS base_upgrades
                      (base_level INTEGER PRIMARY KEY, hp INTEGER, upgrade_cost INTEGER, limit_money INTEGER, speed_money INTEGER,
-                     hp_upgrade_cost INTEGER, limit_money_upgrade_cost INTEGER, speed_money_upgrade_cost INTEGER)''')
+                     hp_upgrade_cost INTEGER, limit_money_upgrade_cost INTEGER, speed_money_upgrade_cost INTEGER, hp_level INTEGER,
+                     limit_money_level INTEGER, speed_money_level INTEGER)''')
         conn.commit()
         conn.close()
 
@@ -90,11 +91,12 @@ class Database:
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
         c.execute(
-            "INSERT OR REPLACE INTO base_upgrades (base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            """INSERT OR REPLACE INTO base_upgrades (base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost, hp_level,
+                     limit_money_level, speed_money_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (defender_base.lvl_main, defender_base.hp, defender_base.upgrade_cost, defender_base.limit_money,
              defender_base.speed_money,
              defender_base.hp_upgrade_cost, defender_base.limit_money_upgrade_cost,
-             defender_base.speed_money_upgrade_cost))
+             defender_base.speed_money_upgrade_cost, defender_base.hp_level, defender_base.limit_money_level, defender_base.speed_money_level))
         conn.commit()
         conn.close()
 
@@ -120,7 +122,7 @@ class Database:
         c.execute("SELECT * FROM base_upgrades")
         row = c.fetchone()
         if row:
-            base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost = row
+            base_level, hp, upgrade_cost, limit_money, speed_money, hp_upgrade_cost, limit_money_upgrade_cost, speed_money_upgrade_cost, hp_level, limit_money_level, speed_money_level = row
             defender_base.lvl_main = base_level
             defender_base.hp = hp
             defender_base.hp_select = hp
@@ -130,4 +132,7 @@ class Database:
             defender_base.hp_upgrade_cost = hp_upgrade_cost  # Загружаем стоимость улучшения здоровья
             defender_base.limit_money_upgrade_cost = limit_money_upgrade_cost  # Загружаем стоимость улучшения лимита денег
             defender_base.speed_money_upgrade_cost = speed_money_upgrade_cost  # Загружаем стоимость улучшения скорости накопления денег
+            defender_base.hp_level = hp_level
+            defender_base.limit_money_level = limit_money_level
+            defender_base.speed_money_level = speed_money_level
         conn.close()

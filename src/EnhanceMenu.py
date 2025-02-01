@@ -111,3 +111,41 @@ class EnhanceMenu:
         """Отрисовываем меню улучшений."""
         for button in self.buttons:
             button.render(screen)
+
+    def info(self, screen, characters):
+        tth = FONT_PRESS_ESC.render(f"Base upgrades: ", True, pygame.Color("yellow"))
+        screen.blit(tth, (60, 70))
+        Hp_text = FONT_RECHARGE.render(
+            f"Lvl: {self.defender_base.hp_level}", True,
+            pygame.Color("yellow"))
+        screen.blit(Hp_text, (260, 100))
+        Limit_Money_text = FONT_RECHARGE.render(
+            f"Lvl: {self.defender_base.limit_money_level}", True,
+            pygame.Color("yellow"))
+        screen.blit(Limit_Money_text, (260, 160))
+        Speed_Money_text = FONT_RECHARGE.render(f"Lvl: {self.defender_base.speed_money_level}", True, pygame.Color("yellow"))
+        screen.blit(Speed_Money_text, (260, 220))
+
+        Hp_text_cost = FONT_RECHARGE.render(
+            f"${self.defender_base.hp_upgrade_cost}", True,
+            pygame.Color("yellow"))
+        screen.blit(Hp_text_cost, (0, 100))
+        Limit_Money_text_cost = FONT_RECHARGE.render(
+            f"${self.defender_base.limit_money_upgrade_cost}", True,
+            pygame.Color("yellow"))
+        screen.blit(Limit_Money_text_cost, (0, 160))
+        Speed_Money_text_cost = FONT_RECHARGE.render(f"${self.defender_base.speed_money_upgrade_cost}", True,
+                                                pygame.Color("yellow"))
+        screen.blit(Speed_Money_text_cost, (0, 220))
+
+        character_text = FONT_PRESS_ESC.render(
+            f"Characters", True,
+            pygame.Color("yellow"))
+        screen.blit(character_text, (WIDTH - 330, 70))
+        for i, character in enumerate(characters):
+            upgrade_cost_text = FONT_RECHARGE.render(f"${character.upgrade_cost}:",
+                                                            True, pygame.Color("yellow"))
+            screen.blit(upgrade_cost_text, (WIDTH - 400, 100 + i * 60))
+            character_level_text = FONT_RECHARGE.render(f"Lvl: {character.level}",
+                                                     True, pygame.Color("yellow"))
+            screen.blit(character_level_text, (WIDTH - 170, 100 + i * 60))
