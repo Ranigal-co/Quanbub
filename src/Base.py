@@ -1,4 +1,3 @@
-import pygame
 from Settings import *
 
 
@@ -8,6 +7,7 @@ from Settings import *
     Класс требуется в улучшениях
 
 '''
+
 
 class Base:
     def __init__(self, x, y, width, height):

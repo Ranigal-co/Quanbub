@@ -1,4 +1,3 @@
-import pygame
 from Settings import *
 from Base import EnemyBase, DefenderBase
 

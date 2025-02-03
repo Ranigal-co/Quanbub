@@ -1,5 +1,6 @@
 from Settings import *
 
+
 class Character:
     def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range, cost, recharge, image=n_im):
         self.name = name

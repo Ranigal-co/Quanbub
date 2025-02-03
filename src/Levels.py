@@ -1,5 +1,6 @@
 from Settings import *
 
+
 class Level:
     def __init__(self, level_id, enemy_spawn_interval, boss_spawn_interval, money_speed,
                  initial_money, coins, enemy_hp_base=STANDARD_BASE_HP_ENEMY):

@@ -1,6 +1,6 @@
-import pygame
 from Settings import *
 from Buttons import Button
+
 
 class HeroesMenu:
     def __init__(self, characters, deck, db):

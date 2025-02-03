@@ -1,7 +1,6 @@
 from src.Buttons import Button
 from src.Settings import *
-from src.HeroesMenu import HeroesMenu
-from src.EnhanceMenu import EnhanceMenu
+
 
 class ButtonManager:
     def __init__(self, heroes_menu=None, enhance_menu=None):

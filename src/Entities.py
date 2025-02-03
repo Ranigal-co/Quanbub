@@ -1,8 +1,6 @@
-import random
-import pygame
 from Settings import *
 from random import *
-from src.Base import DefenderBase, EnemyBase
+
 
 '''
 

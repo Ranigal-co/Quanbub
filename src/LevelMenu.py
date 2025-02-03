@@ -1,8 +1,6 @@
-import pygame
-from Settings import *
 from Buttons import Button
 
-# LevelMenu.py
+
 class LevelMenu:
     def __init__(self, levels):
         self.levels = levels
