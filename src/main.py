@@ -30,6 +30,10 @@ base_def_game = Game()
 current_music = None
 current_menu_music = 0
 current_game_music = 0
+current_mouse_none = 0
+time_mouse = 10
+current_sprite_pos = 0
+game_over = ""
 menu = Menu()
 stage = MENU
 bases = [base_def_game.defender_base]
@@ -39,6 +43,8 @@ pos_music_game = 0
 pos_music_pause = 0
 
 bg = pygame.image.load("../sprites/backgrounds/background.png")
+is_drawing = False
+is_clicked = False
 
 money_text = f'Balance: 0'
 
@@ -72,12 +78,18 @@ levels = [
 ]
 
 characters = [
-    Character("Wall", 10, 230, 404, 5, AREA, 20, 19, 40),
-    Character("Shit", 25, 100, 101, 20, SINGLE, 40, 24, 20),
-    Character("Archer", 20, 350, 37, 90, SINGLE, 150, 38, 60),
-    Character("Hero", 50, 200, 52, 36, AREA, 80, 52, 50),
-    Character("Uber", 60, 220, 469, 170, AREA, 70, 213, 300),
-    Character("Alpha", 80, 140, 2469, 160, AREA, 73, 690, 600)
+    Character("Wall", 10, 230, 404, 5, AREA, 20, 19, 40, image=pygame.image.load(
+        "../sprites/defender/wall.png").convert_alpha()),
+    Character("Shit", 25, 100, 101, 20, SINGLE, 40, 24, 20, image=pygame.image.load(
+        "../sprites/defender/shit.png").convert_alpha()),
+    Character("Archer", 20, 350, 37, 90, SINGLE, 150, 38, 60, image=pygame.image.load(
+        "../sprites/defender/archer.png").convert_alpha()),
+    Character("Hero", 50, 200, 52, 36, AREA, 80, 52, 50, image=pygame.image.load(
+        "../sprites/defender/hero.png").convert_alpha()),
+    Character("Uber", 60, 220, 469, 170, AREA, 70, 213, 300, image=pygame.image.load(
+        "../sprites/defender/uber.png").convert_alpha()),
+    Character("Alpha", 80, 140, 2469, 160, AREA, 73, 690, 600, image=pygame.image.load(
+        "../sprites/defender/alpha.png").convert_alpha())
 ]
 
 deck = db.load_deck(characters)
@@ -149,6 +161,7 @@ while execute:
         if type == pygame.QUIT:
             execute = False
         elif type == pygame.MOUSEBUTTONDOWN:
+            is_clicked = True
             # Проверяем, было ли нажатие вне кнопок
             clicked_outside = True
             for button in heroes_button_manager.buttons:
@@ -160,6 +173,8 @@ while execute:
                 heroes_menu.selected_character = None
                 heroes_menu.selected_slot = None
                 heroes_button_manager.create_heroes_menu_buttons(characters, deck)  # Обновляем кнопки
+        elif type == pygame.MOUSEBUTTONUP:
+            is_clicked = False
         elif type == pygame.KEYDOWN and stage == GAME:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE] == 1:
@@ -180,6 +195,11 @@ while execute:
                     pygame.mixer_music.set_volume(1)
                     pause = True
                     pause_button_manager.create_pause_buttons()  # Создаем кнопки паузы
+        elif event.type == pygame.MOUSEMOTION:
+            if pygame.mouse.get_focused():
+                is_drawing = True
+            else:
+                is_drawing = False
         elif type == MONEY_EVENT:
             if pause is False:
                 if game.money < game.limit_money:
@@ -313,11 +333,11 @@ while execute:
                     pos_music_game = 0
                     pos_music_pause = 0
                     pygame.mixer_music.fadeout(1000)
-                    pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                    pygame.mixer_music.load('../music/music_game/battle_2.mp3')
                     pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                     pygame.mixer_music.set_volume(0.6)
 
-                    current_game_music = (current_game_music + 1) % 7  # смена игровой музыки
+                    current_game_music = (current_game_music + 1) % 5  # смена игровой музыки
                 else:
                     sound_game["hit_defender"].play()
         # Отрисовка текста с количеством монет (если нужно)
@@ -479,7 +499,7 @@ while execute:
                     else:
                         game.money = game.limit_money
                 del entities[index]
-            entity.render(screen)
+            entity.render(screen, current_sprite_pos)
             entity.render_font(screen)
         money_text = f'Money: {game.money}/{game.limit_money}'
 
@@ -534,9 +554,10 @@ while execute:
                         pos_music_game = 0
                         pos_music_pause = 0
                         pygame.mixer_music.fadeout(1000)
-                        pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                        pygame.mixer_music.load('../music/music_game/battle_2.mp3')
                         pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                         pygame.mixer_music.set_volume(0.6)
+                        current_game_music = (current_game_music + 1) % 5  # смена игровой музыки
                     sound_game['button'].play()
                 elif event == "NEXT_LEVEL":
                     # Переходим на следующий уровень
@@ -582,9 +603,10 @@ while execute:
                             pos_music_game = 0
                             pos_music_pause = 0
                             pygame.mixer_music.fadeout(1000)
-                            pygame.mixer_music.load('../music/music_game/battle_3.mp3')
+                            pygame.mixer_music.load('../music/music_game/battle_2.mp3')
                             pygame.mixer_music.play(loops=-1, start=pos_music_game, fade_ms=1000)
                             pygame.mixer_music.set_volume(0.6)
+                            current_game_music = (current_game_music + 1) % 5  # смена игровой музыки
                         sound_game['button'].play()
 
     if pause is True:
@@ -611,6 +633,18 @@ while execute:
 
             # Отрисовка кнопок паузы
             pause_button_manager.render_buttons(screen)
+    if is_drawing:
+        if is_clicked:
+            curs = pygame.image.load(f"../sprites/mouse/mouse_click/mouse_click8.png")
+        else:
+            pygame.mouse.set_visible(False)
+            curs = pygame.image.load(f"../sprites/mouse/mouse_none/mouse{current_mouse_none + 1}.png")
+            if time_mouse == 0:
+                current_mouse_none = (current_mouse_none + 1) % 12
+                time_mouse = 10
+            if time_mouse > 0:
+                time_mouse -= 1
+        screen.blit(curs, pygame.mouse.get_pos())
     clock.tick(FPS)
     pygame.display.flip()
 pygame.quit()

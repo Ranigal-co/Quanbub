@@ -20,7 +20,7 @@ from src.Base import DefenderBase, EnemyBase
 
 class Entity:
     def __init__(self, name=NONE, speed_move=10, speed_attack=500,
-                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE, image=n_im, range=50):
+                 hp=100, attack=10, type=NONE, color=(0, 0, 0), direction=0, damage_type=SINGLE, range=50, image=n_im):
         self.name = name
 
         self.speed_move = speed_move
@@ -92,7 +92,7 @@ class Entity:
         if self.hp <= 0:
             return DEATH
 
-    def render(self, screen):
+    def render(self, screen, cur_im=0):
         # pygame.draw.rect(screen, self.color, self.rect)
         if self.type == ENEMY:
             if self.name == "Boss":
@@ -103,6 +103,9 @@ class Entity:
                 return
             screen.blit(self.image, (self.x, self.y - self.image.get_height() + 50))
         elif self.type == DEFENDER:
+            if self.name == "Hero":
+                screen.blit(self.image, (self.x - self.image.get_width() + 50, self.y - self.image.get_height() + 50 + 25))
+                return
             screen.blit(self.image, (self.x - self.image.get_width() + 50, self.y - self.image.get_height() + 50 + 25))
 
     def render_font(self, screen):
@@ -159,9 +162,9 @@ class Boss:
 
 
 class Defender(Entity):
-    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range):
+    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range, image=n_im):
         super().__init__(name=name, speed_move=speed_move,
-                         speed_attack=speed_attack, hp=hp, attack=attack, type=DEFENDER, color=(0, 255, 0), direction=1, damage_type=damage_type, range=range)
+                         speed_attack=speed_attack, hp=hp, attack=attack, type=DEFENDER, color=(0, 255, 0), direction=1, damage_type=damage_type, image=image, range=range)
 
     def spawn(self):
         self.set_coords(50, HEIGHT - 200 + randint(-15, 15))

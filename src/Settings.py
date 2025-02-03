@@ -35,6 +35,7 @@ DEATH = "Death"
 ENEMY_WIN = "Enemy win"
 DEFENDER_WIN = "Defender win"
 PLAY = "play"
+COLLIDE = "collide"
 SINGLE = "Single"
 AREA = "Area"
 
