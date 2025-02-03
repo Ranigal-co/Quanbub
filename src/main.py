@@ -3,6 +3,7 @@ import random
 from Entities import Enemy, Defender
 from Stages import Menu, Game
 from Buttons import Button_game
+from src.EnhanceMenu import EnhanceMenu
 from src.Entities import Monster, Boss
 from Volume_editor import Rail, Slider
 from Levels import Level
@@ -11,6 +12,7 @@ from Database import Database
 from Coins import Coins
 from Characters import Character
 from ButtonManager import *
+from src.HeroesMenu import HeroesMenu
 from src.ResultsMenu import ResultsMenu
 
 buttons_game = list()
