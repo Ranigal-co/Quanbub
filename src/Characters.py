@@ -1,5 +1,7 @@
+from Settings import *
+
 class Character:
-    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range, cost, recharge):
+    def __init__(self, name, speed_move, speed_attack, hp, attack, damage_type, range, cost, recharge, image=n_im):
         self.name = name
         self.speed_move = speed_move
         self.speed_attack = speed_attack
@@ -12,9 +14,10 @@ class Character:
         self.in_deck = False  # По умолчанию персонаж не в колоде
         self.level = 1  # Уровень персонажа
         self.upgrade_cost = 50  # Стоимость улучшения
+        self.image = image
 
     def get_data(self):
-        return [self.name, self.speed_move, self.speed_attack, self.hp, self.attack, self.damage_type, self.range]
+        return [self.name, self.speed_move, self.speed_attack, self.hp, self.attack, self.damage_type, self.range, self.image]
 
     def upgrade(self):
         """Улучшаем персонажа."""
